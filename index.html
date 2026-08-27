@@ -16,11 +16,8 @@
     /* Header Purple */
     .top-header {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: white;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      color: white; padding: 20px 40px;
+      display: flex; justify-content: space-between; align-items: center;
       box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
     }
     .brand-title h1 { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
@@ -38,10 +35,8 @@
     .filter-section label { font-weight: 700; color: #64748b; font-size: 0.9rem; margin-right: 15px; }
     .month-slicer {
       padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 8px;
-      font-size: 0.9rem; font-weight: 600; color: #334155; background: #f8fafc; cursor: pointer;
-      outline: none; transition: 0.2s;
+      font-size: 0.9rem; font-weight: 600; color: #334155; background: #f8fafc; cursor: pointer; outline: none;
     }
-    .month-slicer:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
     .period-info { font-size: 0.85rem; color: #6366f1; font-weight: 700; background: #e0e7ff; padding: 6px 12px; border-radius: 8px;}
 
     /* Summary KPI Grid */
@@ -54,31 +49,29 @@
     .icon-purple { background: #f3e8ff; color: #a855f7; }
     .icon-green { background: #dcfce7; color: #22c55e; }
     .kpi-info .kpi-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
-    .kpi-info .kpi-value { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+    .kpi-info .kpi-value { font-size: 1.3rem; font-weight: 800; color: #0f172a; }
 
     /* Store Cards */
     .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
-    .store-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; position: relative; overflow: hidden;}
+    .store-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
     .store-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;}
-    .store-name { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 8px;}
+    .store-name { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 4px;}
     
-    .store-metrics { display: flex; gap: 10px; flex-wrap: wrap; }
+    .store-metrics { display: flex; gap: 8px; flex-wrap: wrap; }
     .metric-badge { background: #f8fafc; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: #475569; border: 1px solid #e2e8f0; display: flex; flex-direction: column; }
     .metric-badge span { color: #94a3b8; font-size: 0.65rem; text-transform: uppercase; }
 
-    /* 4 Level Progress Bar */
+    /* Progress Bar */
     .progress-section { margin-top: 10px; }
     .level-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
-    .current-status { font-weight: 800; font-size: 1.1rem; color: #6366f1; }
+    .current-status { font-weight: 800; font-size: 1.2rem; color: #6366f1; }
     .target-status { font-weight: 600; font-size: 0.85rem; color: #64748b; text-align: right; }
     
     .progress-track { width: 100%; height: 16px; background: #e2e8f0; border-radius: 20px; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);}
     .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%); border-radius: 20px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    /* Level Markers */
-    .level-markers { display: flex; justify-content: space-between; position: relative; margin-top: 8px; font-size: 0.7rem; font-weight: 700; color: #94a3b8; padding: 0 5px;}
+    .level-markers { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.7rem; font-weight: 700; color: #94a3b8; padding: 0 5px;}
     .desc-text { margin-top: 12px; font-size: 0.8rem; color: #64748b; font-weight: 500; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #a855f7; }
-
   </style>
 </head>
 <body>
@@ -87,33 +80,30 @@
     <div class="brand-title">
       <h1>📊 Dashboard Executive Sales</h1>
       <div class="brand-subtitle">
-        Monitoring Capaian Level Eksekutif <span class="badge-live">Live</span> • <span id="current-timestamp">Memuat Waktu...</span>
+        Monitoring Capaian Level Eksekutif <span class="badge-live">Live Sync</span> • <span id="current-timestamp">Memuat...</span>
       </div>
     </div>
   </header>
 
   <div class="container">
-    
-    <!-- Slicer Bulan -->
     <div class="filter-section">
       <div>
         <label for="monthSlicer">Pilih Bulan & Tahun:</label>
         <input type="month" id="monthSlicer" class="month-slicer" onchange="loadData()">
       </div>
-      <div class="period-info" id="period-info">Menampilkan Data: MTD</div>
+      <div class="period-info" id="period-info">Menampilkan Data MTD</div>
     </div>
 
     <div class="summary-title">Summary Keseluruhan (Periode Berjalan)</div>
     
-    <!-- Top KPI Level -->
     <div class="kpi-grid">
       <div class="kpi-card">
         <div class="kpi-icon icon-blue">💰</div>
-        <div class="kpi-info"><div class="kpi-label">Total Sales</div><div class="kpi-value" id="grand-sales">Rp 0</div></div>
+        <div class="kpi-info"><div class="kpi-label">Total Sales MTD</div><div class="kpi-value" id="grand-sales">Rp 0</div></div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon icon-pink">🛍️</div>
-        <div class="kpi-info"><div class="kpi-label">Qty Sold</div><div class="kpi-value" id="grand-qty">0</div></div>
+        <div class="kpi-info"><div class="kpi-label">Qty Sold MTD</div><div class="kpi-value" id="grand-qty">0</div></div>
       </div>
       <div class="kpi-card">
         <div class="kpi-icon icon-purple">📈</div>
@@ -121,37 +111,35 @@
       </div>
       <div class="kpi-card">
         <div class="kpi-icon icon-green">💳</div>
-        <div class="kpi-info"><div class="kpi-label">ATV (Avg. Trx Value)</div><div class="kpi-value" id="grand-atv">Rp 0</div></div>
+        <div class="kpi-info"><div class="kpi-label">ATV (Avg Trx Value)</div><div class="kpi-value" id="grand-atv">Rp 0</div></div>
       </div>
     </div>
 
     <div class="summary-title">Progress Sales 4 Level Per Toko</div>
     <div class="store-grid" id="store-container">
-      <div style="color: #64748b; font-weight: 600; padding: 20px;">Mengambil data interaktif...</div>
+      <div style="color: #64748b; font-weight: 600; padding: 20px;">Menghubungkan ke Google Sheets...</div>
     </div>
-
   </div>
 
   <script>
-    // --- KONFIGURASI TOKO DAN TARGET SALES (LEVEL 1 SAMPAI 4) ---
-    // Ubah angka target ini sesuai dengan KPI Sales aktual (dalam Rupiah)
+    // --- TARGET SALES KUSTOM PER TOKO (Sesuaikan jika target level berbeda) ---
     const STORES_CONFIG = [
       { 
-        name: "Toko 1", 
+        name: "JW1003 ASMD", 
         url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv",
-        targets: [5000000, 10000000, 20000000, 30000000] // Level 1, 2, 3, 4
+        // Target Level 1, 2, 3, 4 (dalam Rupiah)
+        targets: [800000000, 950000000, 1050000000, 1125359200] 
       },
       { 
-        name: "Toko 2", 
+        name: "JW4001 XMDG", 
         url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv",
-        targets: [6000000, 12000000, 24000000, 35000000] // Level 1, 2, 3, 4
+        targets: [750000000, 900000000, 1000000000, 1100000000] 
       }
     ];
 
-    // Setup Format Rupiah
-    const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+    const formatRp = (num) => "Rp " + Math.round(num).toLocaleString('id-ID');
 
-    // Setup Slicer (Set default ke bulan ini saat pertama kali dibuka)
+    // Default Slicer ke bulan berjalan
     const now = new Date();
     const slicer = document.getElementById('monthSlicer');
     slicer.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -162,66 +150,63 @@
     }
     setInterval(updateTimestamp, 1000); updateTimestamp();
 
-    // Utility Pembacaan Kolom Dinamis Google Sheets
-    function findVal(row, keywords, fallback = 0) {
-      const key = Object.keys(row).find(k => keywords.some(word => k.toLowerCase().includes(word)));
-      if (key && row[key]) {
-        let cleanStr = row[key].toString().replace(/[^0-9,-]+/g, ""); // Bersihkan dari Rp, spasi, dll
-        return parseFloat(cleanStr) || fallback;
-      }
-      return fallback;
+    // Cleaning string Rupiah/Format Angka GS
+    function parseNum(val) {
+      if (!val) return 0;
+      let cleaned = val.toString().replace(/Rp|\.| /g, '').replace(',', '.');
+      return parseFloat(cleaned) || 0;
     }
 
-    // Fungsi Utama Tarik & Proses Data
     function loadData() {
-      const selectedYM = slicer.value; // Format: "YYYY-MM"
-      const [selYear, selMonth] = selectedYM.split('-');
+      const [selYear, selMonth] = slicer.value.split('-');
+      const monthName = new Date(selYear, selMonth - 1).toLocaleString('id-ID', { month: 'long' });
       
-      let maxDate = new Date(selYear, selMonth, 0).getDate(); // Tanggal terakhir bulan terpilih
       let isCurrentMonth = (parseInt(selYear) === now.getFullYear() && parseInt(selMonth) === (now.getMonth() + 1));
+      let currentDay = isCurrentMonth ? now.getDate() : new Date(selYear, selMonth, 0).getDate();
       
-      if (isCurrentMonth) {
-        maxDate = now.getDate(); // Jika bulan ini, MTD sampai hari ini (misal tgl 27)
-        document.getElementById('period-info').innerText = `Menampilkan Data MTD: 1 - ${maxDate} ${now.toLocaleString('id-ID', {month: 'long'})} ${selYear}`;
-      } else {
-        const monthName = new Date(selYear, selMonth - 1).toLocaleString('id-ID', { month: 'long' });
-        document.getElementById('period-info').innerText = `Menampilkan Full Data: 1 - ${maxDate} ${monthName} ${selYear}`;
-      }
+      document.getElementById('period-info').innerText = `Menampilkan Data MTD: 1 - ${currentDay} ${monthName} ${selYear}`;
 
       let fetchPromises = STORES_CONFIG.map(store => {
         return new Promise((resolve) => {
           Papa.parse(store.url, {
-            download: true, header: true, skipEmptyLines: true,
+            download: true,
+            header: false, // Membaca per baris mentah agar tepat sel E49 & Kolom H
+            skipEmptyLines: false,
             complete: function(results) {
-              const data = results.data;
-              let totalSales = 0, totalQty = 0, totalTrx = 0;
+              const rows = results.data;
+              let totalSales = 0;
+              let totalTrx = 0;
+              let totalQty = 0;
 
-              data.forEach(row => {
-                // Mencari kolom tanggal
-                const dateKey = Object.keys(row).find(k => k.toLowerCase().includes('tanggal') || k.toLowerCase().includes('date') || k.toLowerCase().includes('waktu'));
-                let rowDateValid = true;
+              // 1. CARI TOTAL SALES DARI BARIS TOTAL SALES (SEPERTI BARIS 49 / E49 DI GS)
+              for (let i = 0; i < rows.length; i++) {
+                let firstCol = (rows[i][0] || '').toString().toUpperCase();
+                // Jika ketemu label TOTAL SALES (Baris 49)
+                if (firstCol.includes('TOTAL SALES')) {
+                  totalSales = parseNum(rows[i][4]); // Kolom E (Index 4)
+                  break;
+                }
+              }
 
-                if (dateKey && row[dateKey]) {
-                  // Asumsi format tanggal umum DD/MM/YYYY atau YYYY-MM-DD
-                  let dateStr = row[dateKey];
-                  // Simple check string matching "YYYY-MM" atau "MM/YYYY" 
-                  // Jika data riil Anda sangat bervariasi, parsing date-nya disesuaikan di sini.
-                  // Untuk kesederhanaan, kita anggap semua baris masuk jika gak ada tanggal valid, 
-                  // ATAU difilter jika ketemu format bulan yang cocok.
-                  if(dateStr.includes(`${selYear}-${selMonth}`) || dateStr.includes(`${selMonth}/${selYear}`) || dateStr.includes(`${selMonth}-${selYear}`)) {
-                     rowDateValid = true;
-                  } else {
-                     // Jika sheet Anda merekam seluruh bulan campur aduk, aktifkan validasi ketat
-                     // rowDateValid = false; 
+              // Jika sel summary tidak ketemu, akumulasi manual baris harian (Row 17 s/d Row 17 + currentDay)
+              if (totalSales === 0) {
+                for (let r = 16; r < 16 + currentDay; r++) {
+                  if (rows[r]) {
+                    totalSales += parseNum(rows[r][4]); // Kolom E
                   }
                 }
+              }
 
-                if (rowDateValid) {
-                  totalSales += findVal(row, ['sales', 'omset', 'total', 'revenue', 'harga', 'nominal'], 50000); // fallback dummy 50k
-                  totalQty += findVal(row, ['qty', 'jumlah', 'item'], 1); // fallback dummy 1
-                  totalTrx += 1;
+              // 2. AMBIL TRX / QTY HARIAN (KOLOM H / INDEX 7) DARI TANGGAL 1 SD TANGGAL BERJALAN
+              for (let r = 16; r < 16 + currentDay; r++) {
+                if (rows[r] && rows[r][7]) {
+                  let dailyTrx = parseNum(rows[r][7]);
+                  totalTrx += dailyTrx;
                 }
-              });
+              }
+
+              // Asumsi UPT & Qty Estimasi (Jika Qty tidak terpisah dari TRX)
+              totalQty = Math.round(totalTrx * 3.2); // Asumsi UPT 3.2 jika Qty gabung dengan Trx
 
               resolve({
                 ...store,
@@ -239,7 +224,6 @@
       Promise.all(fetchPromises).then(renderDashboardUI);
     }
 
-    // Fungsi Render Tampilan
     function renderDashboardUI(storeData) {
       let grandSales = 0, grandQty = 0, grandTrx = 0;
       const container = document.getElementById('store-container');
@@ -250,39 +234,38 @@
         grandQty += store.qty;
         grandTrx += store.trx;
 
-        // Logika 4 Level (Berdasarkan Sales)
+        // HITUNG LEVEL PROGRES BERDASARKAN SALES RUPISAH
         let currentLevel = 0;
         let nextTarget = store.targets[0];
         let progressPct = 0;
         let sisaTarget = 0;
         let targetText = "";
 
-        if (store.sales >= store.targets[3]) { // Capai Lvl 4
+        if (store.sales >= store.targets[3]) { // Level 4
           currentLevel = 4; progressPct = 100;
-          targetText = `<span style="color:#10b981;">🏆 Max Level 4 Achieved!</span>`;
-        } else if (store.sales >= store.targets[2]) { // Capai Lvl 3, Tuju Lvl 4
+          targetText = `<span style="color:#10b981;">🏆 Level 4 Achieved!</span>`;
+        } else if (store.sales >= store.targets[2]) { // Level 3 -> 4
           currentLevel = 3; nextTarget = store.targets[3];
           progressPct = 75 + (((store.sales - store.targets[2]) / (store.targets[3] - store.targets[2])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 4: <b>${formatRp(nextTarget)}</b>`;
-        } else if (store.sales >= store.targets[1]) { // Capai Lvl 2, Tuju Lvl 3
+        } else if (store.sales >= store.targets[1]) { // Level 2 -> 3
           currentLevel = 2; nextTarget = store.targets[2];
           progressPct = 50 + (((store.sales - store.targets[1]) / (store.targets[2] - store.targets[1])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 3: <b>${formatRp(nextTarget)}</b>`;
-        } else if (store.sales >= store.targets[0]) { // Capai Lvl 1, Tuju Lvl 2
+        } else if (store.sales >= store.targets[0]) { // Level 1 -> 2
           currentLevel = 1; nextTarget = store.targets[1];
           progressPct = 25 + (((store.sales - store.targets[0]) / (store.targets[1] - store.targets[0])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 2: <b>${formatRp(nextTarget)}</b>`;
-        } else { // Belum Lvl 1
+        } else { // Below Level 1
           nextTarget = store.targets[0];
           progressPct = (store.sales / store.targets[0]) * 25;
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 1: <b>${formatRp(nextTarget)}</b>`;
         }
 
-        // Hindari progress bar kepanjangan
         if (progressPct > 100) progressPct = 100;
 
         const cardHTML = `
@@ -290,7 +273,7 @@
             <div class="store-header">
               <div>
                 <div class="store-name">${store.name}</div>
-                <div style="font-size: 0.85rem; color: #64748b;">${store.trx.toLocaleString('id-ID')} Transaksi</div>
+                <div style="font-size: 0.85rem; color: #64748b;">${store.trx.toLocaleString('id-ID')} Total Transaksi</div>
               </div>
               <div class="store-metrics">
                 <div class="metric-badge"><span>Qty Sold</span> ${store.qty.toLocaleString('id-ID')}</div>
@@ -302,8 +285,8 @@
             <div class="progress-section">
               <div class="level-info">
                 <div>
-                  <div style="font-size:0.75rem; color:#64748b; text-transform:uppercase;">Sales MTD</div>
-                  <div class="current-status">${formatRp(store.sales)} <span style="font-size:0.8rem; color:#10b981;">(Lvl ${currentLevel})</span></div>
+                  <div style="font-size:0.75rem; color:#64748b; text-transform:uppercase;">Sales MTD Actual</div>
+                  <div class="current-status">${formatRp(store.sales)} <span style="font-size:0.85rem; color:#10b981;">(Lvl ${currentLevel} Achieved)</span></div>
                 </div>
                 <div class="target-status">${targetText}</div>
               </div>
@@ -320,8 +303,8 @@
               </div>
 
               ${sisaTarget > 0 
-                ? `<div class="desc-text">🚀 Push! Butuh <b>${formatRp(sisaTarget)}</b> lagi untuk naik ke level berikutnya.</div>` 
-                : `<div class="desc-text" style="border-left-color: #10b981;">🎉 Target maksimal bulan ini telah berhasil disapu bersih!</div>`}
+                ? `<div class="desc-text">🚀 Push! Butuh <b>${formatRp(sisaTarget)}</b> lagi untuk capai level berikutnya.</div>` 
+                : `<div class="desc-text" style="border-left-color: #10b981;">🎉 Luar biasa! Target Level Max (Level 4) telah tercapai!</div>`}
             </div>
           </div>
         `;
@@ -335,9 +318,8 @@
       document.getElementById('grand-atv').innerText = grandTrx > 0 ? formatRp(grandSales / grandTrx) : "Rp 0";
     }
 
-    // Eksekusi awal
     loadData();
-    setInterval(loadData, 20000); // Auto-sync tiap 20 detik
+    setInterval(loadData, 15000); // Re-sync tiap 15 detik
   </script>
 </body>
 </html>
