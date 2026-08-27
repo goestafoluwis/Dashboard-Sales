@@ -61,11 +61,38 @@
     .current-status { font-weight: 800; font-size: 1.2rem; color: #6366f1; }
     .target-status { font-weight: 600; font-size: 0.85rem; color: #64748b; text-align: right; }
     
-    .progress-track { width: 100%; height: 16px; background: #e2e8f0; border-radius: 20px; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);}
-    .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%); border-radius: 20px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+    /* Efek Grafik Pendakian Dinamis */
+    .progress-track { 
+      width: 100%; height: 20px; background: #e2e8f0; border-radius: 20px; 
+      overflow: hidden; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .progress-fill { 
+      height: 100%; 
+      background: linear-gradient(90deg, #4f46e5 0%, #8b5cf6 50%, #ec4899 100%); 
+      background-size: 200% 100%;
+      border-radius: 20px; 
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: gradientMove 3s ease infinite;
+      position: relative;
+    }
     
-    .level-markers { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.7rem; font-weight: 700; color: #94a3b8; padding: 0 5px;}
-    .desc-text { margin-top: 12px; font-size: 0.8rem; color: #64748b; font-weight: 500; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #a855f7; }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Garis Milestone / Pendakian di dalam Bar */
+    .milestone-lines {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; justify-content: space-between; pointer-events: none; padding: 0 25%;
+    }
+    .milestone-tick {
+      width: 2px; height: 100%; background: rgba(255, 255, 255, 0.5); z-index: 2;
+    }
+
+    .level-markers { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.75rem; font-weight: 700; color: #64748b; padding: 0 5px;}
+    .desc-text { margin-top: 12px; font-size: 0.85rem; color: #475569; font-weight: 600; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 10px 14px; border-radius: 8px; border-left: 4px solid #8b5cf6; display: flex; align-items: center; gap: 8px;}
   </style>
 </head>
 <body>
@@ -116,7 +143,6 @@
   </div>
 
   <script>
-    // Pemetaan nama sheet di Google Sheets sesuai bulan
     const STORES_CONFIG = [
       { name: "JW1003 ASMD", url: "https://docs.google.com/spreadsheets/d/1AiBaCBgV8tbL9t6JnVzyvczq6HItGTh02VoBF63s9K0/export?format=csv&gid=674306533" },
       { name: "JW4001 XMDG", url: "https://docs.google.com/spreadsheets/d/13yKFbckJ_RkMtwmB0AxA5D-XWqVC6MOjv3sZI50qMf4/export?format=csv&gid=674306533" }
@@ -198,6 +224,7 @@
       let storeData = await Promise.all(storePromises);
       renderDashboardUI(storeData);
     }
+
     function renderDashboardUI(storeData) {
       let grandSales = 0, grandQty = 0, grandTrx = 0;
       const container = document.getElementById('store-container');
@@ -265,6 +292,11 @@
               </div>
               
               <div class="progress-track">
+                <div class="milestone-lines">
+                  <div class="milestone-tick"></div>
+                  <div class="milestone-tick"></div>
+                  <div class="milestone-tick"></div>
+                </div>
                 <div class="progress-fill" style="width: ${progressPct}%"></div>
               </div>
               <div class="level-markers">
@@ -276,8 +308,8 @@
               </div>
 
               ${sisaTarget > 0 
-                ? `<div class="desc-text">🚀 Push! Butuh <b>${formatRp(sisaTarget)}</b> lagi untuk capai level berikutnya.</div>` 
-                : `<div class="desc-text" style="border-left-color: #10b981;">🎉 Luar biasa! Target Level Max (Level 4) telah tercapai!</div>`}
+                ? `<div class="desc-text">🚀 <span>Gas terus! Butuh <b>${formatRp(sisaTarget)}</b> lagi untuk tembus level berikutnya!</span></div>` 
+                : `<div class="desc-text" style="border-left-color: #10b981; background: #ecfdf5;">🎉 <span>Luar biasa! Target Level Max (Level 4) telah dikuasai sepenuhnya!</span></div>`}
             </div>
           </div>
         `;
