@@ -156,7 +156,10 @@
 
       let fetchPromises = STORES_CONFIG.map(store => {
         return new Promise((resolve) => {
-          Papa.parse(store.url, {
+          // Bungkus URL dengan proxy publik untuk bypass blokiran CORS browser
+          const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(store.url);
+
+          Papa.parse(proxyUrl, {
             download: true,
             header: false,
             skipEmptyLines: false,
@@ -170,21 +173,15 @@
               let t4 = rows[4] ? parseNum(rows[4][9]) : 0; // J5
 
               // DATA TOKO: Baris 13 (Index 12)
-              // Sales MTD: Kolom D (Index 3)
-              // Qty Sold: Kolom H (Index 7)
-              // Total Transaksi: Kolom F (Index 5)
-              // Traffic: Kolom G (Index 6)
-              // UPT: Kolom I (Index 8)
-              // ATV: Kolom J (Index 9)
               let sales = 0, qty = 0, trx = 0, traffic = 0, upt = 0, atv = 0;
               
               if (rows.length > 12 && rows[12]) {
-                sales = parseNum(rows[12][3]);   // D13
-                trx   = parseNum(rows[12][5]);   // F13
-                traffic = parseNum(rows[12][6]); // G13
-                qty   = parseNum(rows[12][7]);   // H13
-                upt   = parseNum(rows[12][8]);   // I13
-                atv   = parseNum(rows[12][9]);   // J13
+                sales   = parseNum(rows[12][3]); // D13 (Sales MTD)
+                trx     = parseNum(rows[12][5]); // F13 (Total Transaksi)
+                traffic = parseNum(rows[12][6]); // G13 (Traffic)
+                qty     = parseNum(rows[12][7]); // H13 (Qty Sold)
+                upt     = parseNum(rows[12][8]); // I13 (UPT)
+                atv     = parseNum(rows[12][9]); // J13 (ATV)
               }
 
               resolve({
@@ -197,6 +194,10 @@
                 atv: atv,
                 targets: [t1, t2, t3, t4]
               });
+            },
+            error: function(err) {
+              console.error("Gagal parse CSV:", err);
+              resolve({ ...store, sales: 0, qty: 0, trx: 0, traffic: 0, upt: 0, atv: 0, targets: [0,0,0,0] });
             }
           });
         });
@@ -221,7 +222,6 @@
         let sisaTarget = 0;
         let targetText = "";
 
-        // Logika Level 4 Target Berdasarkan G5, H5, I5, J5
         if (store.sales >= store.targets[3]) { 
           currentLevel = 4; progressPct = 100;
           targetText = `<span style="color:#10b981;">🏆 Level 4 Achieved!</span>`;
