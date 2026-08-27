@@ -117,24 +117,9 @@
 
   <script>
     // Pemetaan nama sheet di Google Sheets sesuai bulan
-    const MONTH_SHEET_NAMES = {
-      "01": "Jan",
-      "02": "Feb",
-      "03": "Mar",
-      "04": "Apr",
-      "05": "May",
-      "06": "Jun",
-      "07": "Jul",
-      "08": "Aug",
-      "09": "Sep",
-      "10": "Oct",
-      "11": "Nov",
-      "12": "Dec"
-    };
-
     const STORES_CONFIG = [
-      { name: "JW1003 ASMD", baseUrl: "https://docs.google.com/spreadsheets/d/1AiBaCBgV8tbL9t6JnVzyvczq6HItGTh02VoBF63s9K0/export?format=csv" },
-      { name: "JW4001 XMDG", baseUrl: "https://docs.google.com/spreadsheets/d/13yKFbckJ_RkMtwmB0AxA5D-XWqVC6MOjv3sZI50qMf4/export?format=csv" }
+      { name: "JW1003 ASMD", url: "https://docs.google.com/spreadsheets/d/1AiBaCBgV8tbL9t6JnVzyvczq6HItGTh02VoBF63s9K0/export?format=csv&gid=674306533" },
+      { name: "JW4001 XMDG", url: "https://docs.google.com/spreadsheets/d/13yKFbckJ_RkMtwmB0AxA5D-XWqVC6MOjv3sZI50qMf4/export?format=csv&gid=674306533" }
     ];
 
     const formatRp = (num) => "Rp " + Math.round(num).toLocaleString('id-ID');
@@ -164,14 +149,9 @@
       
       document.getElementById('period-info').innerText = `Menampilkan Data MTD: 1 - ${currentDay} ${monthName} ${selYear}`;
 
-      // Ambil nama sheet berdasarkan bulan (default ke "Aug" jika tidak ditemukan)
-      const sheetName = MONTH_SHEET_NAMES[selMonth] || "Aug";
-
       let storePromises = STORES_CONFIG.map(async (store) => {
         try {
-          // Menggunakan parameter &sheet=NamaSheet agar otomatis menarik data dari tab yang tepat
-          const fullUrl = `${store.baseUrl}&sheet=${encodeURIComponent(sheetName)}`;
-          const response = await fetch(fullUrl);
+          const response = await fetch(store.url);
           const csvText = await response.text();
           
           return new Promise((resolve) => {
