@@ -141,58 +141,62 @@
       return parseFloat(str) || 0;
     }
 
-    function loadData() {
+    async function loadData() {
       const [selYear, selMonth] = slicer.value.split('-');
       const monthName = new Date(selYear, selMonth - 1).toLocaleString('id-ID', { month: 'long' });
       let currentDay = (parseInt(selYear) === now.getFullYear() && parseInt(selMonth) === (now.getMonth() + 1)) ? now.getDate() : new Date(selYear, selMonth, 0).getDate();
       
       document.getElementById('period-info').innerText = `Menampilkan Data MTD: 1 - ${currentDay} ${monthName} ${selYear}`;
 
-      let fetchPromises = STORES_CONFIG.map(store => {
-        return new Promise((resolve) => {
-          // Menggunakan proxy AllOrigins untuk bypass CORS dengan aman
-          const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(store.url);
+      let storePromises = STORES_CONFIG.map(async (store) => {
+        try {
+          const response = await fetch(store.url);
+          const csvText = await response.text();
+          
+          return new Promise((resolve) => {
+            Papa.parse(csvText, {
+              header: false,
+              skipEmptyLines: false,
+              complete: function(results) {
+                const rows = results.data;
+                
+                let t1 = rows[4] ? parseNum(rows[4][6]) : 0;
+                let t2 = rows[4] ? parseNum(rows[4][7]) : 0;
+                let t3 = rows[4] ? parseNum(rows[4][8]) : 0;
+                let t4 = rows[4] ? parseNum(rows[4][9]) : 0;
 
-          Papa.parse(proxyUrl, {
-            download: true,
-            header: false,
-            skipEmptyLines: false,
-            complete: function(results) {
-              const rows = results.data;
-              
-              let t1 = rows[4] ? parseNum(rows[4][6]) : 0;
-              let t2 = rows[4] ? parseNum(rows[4][7]) : 0;
-              let t3 = rows[4] ? parseNum(rows[4][8]) : 0;
-              let t4 = rows[4] ? parseNum(rows[4][9]) : 0;
+                let sales = 0, qty = 0, trx = 0, traffic = 0, upt = 0, atv = 0;
+                
+                if (rows.length > 12 && rows[12]) {
+                  sales   = parseNum(rows[12][3]); 
+                  trx     = parseNum(rows[12][5]); 
+                  traffic = parseNum(rows[12][6]); 
+                  qty     = parseNum(rows[12][7]); 
+                  upt     = parseNum(rows[12][8]); 
+                  atv     = parseNum(rows[12][9]); 
+                }
 
-              let sales = 0, qty = 0, trx = 0, traffic = 0, upt = 0, atv = 0;
-              
-              if (rows.length > 12 && rows[12]) {
-                sales   = parseNum(rows[12][3]); 
-                trx     = parseNum(rows[12][5]); 
-                traffic = parseNum(rows[12][6]); 
-                qty     = parseNum(rows[12][7]); 
-                upt     = parseNum(rows[12][8]); 
-                atv     = parseNum(rows[12][9]); 
+                resolve({
+                  ...store,
+                  sales, qty, trx, traffic, upt, atv,
+                  targets: [t1, t2, t3, t4]
+                });
+              },
+              error: function(err) {
+                console.error("Gagal parse CSV:", err);
+                resolve({ ...store, sales: 0, qty: 0, trx: 0, traffic: 0, upt: 0, atv: 0, targets: [0,0,0,0] });
               }
-
-              resolve({
-                ...store,
-                sales, qty, trx, traffic, upt, atv,
-                targets: [t1, t2, t3, t4]
-              });
-            },
-            error: function(err) {
-              console.error("Gagal parse CSV:", err);
-              resolve({ ...store, sales: 0, qty: 0, trx: 0, traffic: 0, upt: 0, atv: 0, targets: [0,0,0,0] });
-            }
+            });
           });
-        });
+        } catch (err) {
+          console.error("Gagal fetch data toko:", store.name, err);
+          return { ...store, sales: 0, qty: 0, trx: 0, traffic: 0, upt: 0, atv: 0, targets: [0,0,0,0] };
+        }
       });
 
-      Promise.all(fetchPromises).then(renderDashboardUI);
+      let storeData = await Promise.all(storePromises);
+      renderDashboardUI(storeData);
     }
-
     function renderDashboardUI(storeData) {
       let grandSales = 0, grandQty = 0, grandTrx = 0;
       const container = document.getElementById('store-container');
