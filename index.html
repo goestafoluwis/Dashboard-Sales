@@ -60,38 +60,97 @@
     .level-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
     .current-status { font-weight: 800; font-size: 1.2rem; color: #6366f1; }
     .target-status { font-weight: 600; font-size: 0.85rem; color: #64748b; text-align: right; }
-    
-    /* Efek Grafik Pendakian Dinamis */
-    .progress-track { 
-      width: 100%; height: 20px; background: #e2e8f0; border-radius: 20px; 
-      overflow: hidden; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+
+    /* STYLING TANGGA / STAIRCASE CHART */
+    .staircase-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      height: 110px;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 10px 15px;
+      border: 1px solid #e2e8f0;
+      position: relative;
+      margin-top: 5px;
+      gap: 8px;
     }
-    .progress-fill { 
-      height: 100%; 
-      background: linear-gradient(90deg, #4f46e5 0%, #8b5cf6 50%, #ec4899 100%); 
-      background-size: 200% 100%;
-      border-radius: 20px; 
-      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: gradientMove 3s ease infinite;
+
+    .stair-step {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
       position: relative;
     }
-    
-    @keyframes gradientMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+
+    .stair-bar-wrapper {
+      width: 100%;
+      height: 75px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      position: relative;
     }
 
-    /* Garis Milestone / Pendakian di dalam Bar */
-    .milestone-lines {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      display: flex; justify-content: space-between; pointer-events: none; padding: 0 25%;
-    }
-    .milestone-tick {
-      width: 2px; height: 100%; background: rgba(255, 255, 255, 0.5); z-index: 2;
+    /* Ketinggian bertingkat untuk efek tangga */
+    .stair-1 .stair-bar-wrapper { height: 35px; }
+    .stair-2 .stair-bar-wrapper { height: 50px; }
+    .stair-3 .stair-bar-wrapper { height: 70px; }
+    .stair-4 .stair-bar-wrapper { height: 95px; }
+
+    .stair-fill {
+      width: 100%;
+      background: #cbd5e1;
+      border-radius: 4px;
+      transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .level-markers { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.75rem; font-weight: 700; color: #64748b; padding: 0 5px;}
+    /* Warna saat level terlewati / tercapai */
+    .stair-step.completed .stair-fill {
+      background: linear-gradient(180deg, #8b5cf6 0%, #6366f1 100%);
+    }
+    .stair-step.active .stair-fill {
+      background: linear-gradient(180deg, #ec4899 0%, #8b5cf6 100%);
+      box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+    }
+
+    .stair-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    .stair-value {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .stair-step.active .stair-label, .stair-step.completed .stair-label {
+      color: #4f46e5;
+    }
+
+    /* Penanda Posisi Climber / Ikon */
+    .climber-icon {
+      position: absolute;
+      top: -12px;
+      font-size: 1.1rem;
+      animation: bounce 1.5s infinite;
+      z-index: 5;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
     .desc-text { margin-top: 12px; font-size: 0.85rem; color: #475569; font-weight: 600; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 10px 14px; border-radius: 8px; border-left: 4px solid #8b5cf6; display: flex; align-items: center; gap: 8px;}
   </style>
 </head>
@@ -149,6 +208,11 @@
     ];
 
     const formatRp = (num) => "Rp " + Math.round(num).toLocaleString('id-ID');
+    const formatShortRp = (num) => {
+      if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'M';
+      if (num >= 1000000) return (num / 1000000).toFixed(0) + 'jt';
+      return num.toLocaleString('id-ID');
+    };
 
     const now = new Date();
     const slicer = document.getElementById('monthSlicer');
@@ -237,36 +301,45 @@
 
         let currentLevel = 0;
         let nextTarget = store.targets[0];
-        let progressPct = 0;
         let sisaTarget = 0;
         let targetText = "";
 
         if (store.sales >= store.targets[3]) { 
-          currentLevel = 4; progressPct = 100;
+          currentLevel = 4;
           targetText = `<span style="color:#10b981;">🏆 Level 4 Achieved!</span>`;
         } else if (store.sales >= store.targets[2]) { 
           currentLevel = 3; nextTarget = store.targets[3];
-          progressPct = 75 + (((store.sales - store.targets[2]) / (store.targets[3] - store.targets[2])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 4: <b>${formatRp(nextTarget)}</b>`;
         } else if (store.sales >= store.targets[1]) { 
           currentLevel = 2; nextTarget = store.targets[2];
-          progressPct = 50 + (((store.sales - store.targets[1]) / (store.targets[2] - store.targets[1])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 3: <b>${formatRp(nextTarget)}</b>`;
         } else if (store.sales >= store.targets[0]) { 
           currentLevel = 1; nextTarget = store.targets[1];
-          progressPct = 25 + (((store.sales - store.targets[0]) / (store.targets[1] - store.targets[0])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 2: <b>${formatRp(nextTarget)}</b>`;
         } else { 
           nextTarget = store.targets[0];
-          progressPct = store.targets[0] > 0 ? (store.sales / store.targets[0]) * 25 : 0;
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 1: <b>${formatRp(nextTarget)}</b>`;
         }
 
-        if (progressPct > 100) progressPct = 100;
+        // Helper fungsi isi ketinggian tangga per level (0% - 100%)
+        // Level 1
+        let p1 = store.sales >= store.targets[0] ? 100 : Math.max(10, (store.sales / (store.targets[0] || 1)) * 100);
+        // Level 2
+        let p2 = store.sales >= store.targets[1] ? 100 : (store.sales < store.targets[0] ? 0 : Math.max(10, ((store.sales - store.targets[0]) / (store.targets[1] - store.targets[0])) * 100));
+        // Level 3
+        let p3 = store.sales >= store.targets[2] ? 100 : (store.sales < store.targets[1] ? 0 : Math.max(10, ((store.sales - store.targets[1]) / (store.targets[2] - store.targets[1])) * 100));
+        // Level 4
+        let p4 = store.sales >= store.targets[3] ? 100 : (store.sales < store.targets[2] ? 0 : Math.max(10, ((store.sales - store.targets[2]) / (store.targets[3] - store.targets[2])) * 100));
+
+        const getStatusClass = (lvl) => {
+          if (currentLevel > lvl) return "completed";
+          if (currentLevel === lvl) return "active";
+          return "";
+        };
 
         const cardHTML = `
           <div class="store-card">
@@ -291,25 +364,55 @@
                 <div class="target-status">${targetText}</div>
               </div>
               
-              <div class="progress-track">
-                <div class="milestone-lines">
-                  <div class="milestone-tick"></div>
-                  <div class="milestone-tick"></div>
-                  <div class="milestone-tick"></div>
+              <!-- GRAFIK TANGGA / STAIRCASE -->
+              <div class="staircase-container">
+                <!-- Level 1 -->
+                <div class="stair-step stair-1 ${getStatusClass(1)}">
+                  ${currentLevel === 1 ? '<div class="climber-icon">🧗‍♂️</div>' : ''}
+                  ${currentLevel > 1 ? '<div class="climber-icon" style="top:-8px;">⭐</div>' : ''}
+                  <div class="stair-bar-wrapper">
+                    <div class="stair-fill" style="height: ${p1}%"></div>
+                  </div>
+                  <div class="stair-label">Lvl 1</div>
+                  <div class="stair-value">${formatShortRp(store.targets[0])}</div>
                 </div>
-                <div class="progress-fill" style="width: ${progressPct}%"></div>
-              </div>
-              <div class="level-markers">
-                <span>0</span>
-                <span>Lvl 1</span>
-                <span>Lvl 2</span>
-                <span>Lvl 3</span>
-                <span>Lvl 4</span>
+
+                <!-- Level 2 -->
+                <div class="stair-step stair-2 ${getStatusClass(2)}">
+                  ${currentLevel === 2 ? '<div class="climber-icon">🧗‍♂️</div>' : ''}
+                  ${currentLevel > 2 ? '<div class="climber-icon" style="top:-8px;">⭐</div>' : ''}
+                  <div class="stair-bar-wrapper">
+                    <div class="stair-fill" style="height: ${p2}%"></div>
+                  </div>
+                  <div class="stair-label">Lvl 2</div>
+                  <div class="stair-value">${formatShortRp(store.targets[1])}</div>
+                </div>
+
+                <!-- Level 3 -->
+                <div class="stair-step stair-3 ${getStatusClass(3)}">
+                  ${currentLevel === 3 ? '<div class="climber-icon">🧗‍♂️</div>' : ''}
+                  ${currentLevel > 3 ? '<div class="climber-icon" style="top:-8px;">⭐</div>' : ''}
+                  <div class="stair-bar-wrapper">
+                    <div class="stair-fill" style="height: ${p3}%"></div>
+                  </div>
+                  <div class="stair-label">Lvl 3</div>
+                  <div class="stair-value">${formatShortRp(store.targets[2])}</div>
+                </div>
+
+                <!-- Level 4 -->
+                <div class="stair-step stair-4 ${getStatusClass(4)}">
+                  ${currentLevel === 4 || currentLevel >= 4 ? '<div class="climber-icon">🏆</div>' : ''}
+                  <div class="stair-bar-wrapper">
+                    <div class="stair-fill" style="height: ${p4}%"></div>
+                  </div>
+                  <div class="stair-label">Lvl 4 (Max)</div>
+                  <div class="stair-value">${formatShortRp(store.targets[3])}</div>
+                </div>
               </div>
 
               ${sisaTarget > 0 
-                ? `<div class="desc-text">🚀 <span>Gas terus! Butuh <b>${formatRp(sisaTarget)}</b> lagi untuk tembus level berikutnya!</span></div>` 
-                : `<div class="desc-text" style="border-left-color: #10b981; background: #ecfdf5;">🎉 <span>Luar biasa! Target Level Max (Level 4) telah dikuasai sepenuhnya!</span></div>`}
+                ? `<div class="desc-text" style="margin-top:15px;">🚀 <span>Gas terus! Butuh <b>${formatRp(sisaTarget)}</b> lagi untuk naik ke anak tangga berikutnya!</span></div>` 
+                : `<div class="desc-text" style="margin-top:15px; border-left-color: #10b981; background: #ecfdf5;">🎉 <span>Luar biasa! Puncak tangga tertinggi (Level 4) berhasil ditaklukkan!</span></div>`}
             </div>
           </div>
         `;
