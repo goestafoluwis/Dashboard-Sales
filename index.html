@@ -150,9 +150,7 @@
     function loadData() {
       const [selYear, selMonth] = slicer.value.split('-');
       const monthName = new Date(selYear, selMonth - 1).toLocaleString('id-ID', { month: 'long' });
-      
-      let isCurrentMonth = (parseInt(selYear) === now.getFullYear() && parseInt(selMonth) === (now.getMonth() + 1));
-      let currentDay = isCurrentMonth ? now.getDate() : new Date(selYear, selMonth, 0).getDate();
+      let currentDay = (parseInt(selYear) === now.getFullYear() && parseInt(selMonth) === (now.getMonth() + 1)) ? now.getDate() : new Date(selYear, selMonth, 0).getDate();
       
       document.getElementById('period-info').innerText = `Menampilkan Data MTD: 1 - ${currentDay} ${monthName} ${selYear}`;
 
@@ -165,36 +163,38 @@
             complete: function(results) {
               const rows = results.data;
               
-              // TARGET LEVEL DIAMBIT DARI BARIS 5 (Index 4) -> G, H, I, J (Index 6, 7, 8, 9)
+              // TARGET: Baris 5 (Index 4) -> G, H, I, J (Index 6, 7, 8, 9)
               let t1 = rows[4] ? parseNum(rows[4][6]) : 0; // G5
               let t2 = rows[4] ? parseNum(rows[4][7]) : 0; // H5
               let t3 = rows[4] ? parseNum(rows[4][8]) : 0; // I5
               let t4 = rows[4] ? parseNum(rows[4][9]) : 0; // J5
 
-              // TOTAL SALES MTD DIAMBIL MUTLAK DARI KOLOM E BARIS 49 (Index row 48, col 4)
-              let totalSales = 0;
-              if (rows.length > 48 && rows[48]) {
-                totalSales = parseNum(rows[48][4]);
+              // DATA TOKO: Baris 13 (Index 12)
+              // Sales MTD: Kolom D (Index 3)
+              // Qty Sold: Kolom H (Index 7)
+              // Total Transaksi: Kolom F (Index 5)
+              // Traffic: Kolom G (Index 6)
+              // UPT: Kolom I (Index 8)
+              // ATV: Kolom J (Index 9)
+              let sales = 0, qty = 0, trx = 0, traffic = 0, upt = 0, atv = 0;
+              
+              if (rows.length > 12 && rows[12]) {
+                sales = parseNum(rows[12][3]);   // D13
+                trx   = parseNum(rows[12][5]);   // F13
+                traffic = parseNum(rows[12][6]); // G13
+                qty   = parseNum(rows[12][7]);   // H13
+                upt   = parseNum(rows[12][8]);   // I13
+                atv   = parseNum(rows[12][9]);   // J13
               }
-
-              // HITUNG TOTAL TRANSAKSI (Kolom H / Index 7) dari baris tanggal 1 s.d. 31 (Row 17 s.d 47)
-              let totalTrx = 0;
-              for (let i = 16; i <= 46; i++) {
-                if (rows[i] && rows[i][7]) {
-                  let trxVal = parseNum(rows[i][7]);
-                  if (trxVal > 0) totalTrx += trxVal;
-                }
-              }
-
-              let totalQty = Math.round(totalTrx * 3.2);
 
               resolve({
                 ...store,
-                sales: totalSales,
-                qty: totalQty,
-                trx: totalTrx,
-                upt: totalTrx > 0 ? (totalQty / totalTrx) : 0,
-                atv: totalTrx > 0 ? (totalSales / totalTrx) : 0,
+                sales: sales,
+                qty: qty,
+                trx: trx,
+                traffic: traffic,
+                upt: upt,
+                atv: atv,
                 targets: [t1, t2, t3, t4]
               });
             }
@@ -221,7 +221,7 @@
         let sisaTarget = 0;
         let targetText = "";
 
-        // Logika Level Berdasarkan Target G5, H5, I5, J5
+        // Logika Level 4 Target Berdasarkan G5, H5, I5, J5
         if (store.sales >= store.targets[3]) { 
           currentLevel = 4; progressPct = 100;
           targetText = `<span style="color:#10b981;">🏆 Level 4 Achieved!</span>`;
@@ -294,8 +294,8 @@
 
       document.getElementById('grand-sales').innerText = formatRp(grandSales);
       document.getElementById('grand-qty').innerText = grandQty.toLocaleString('id-ID');
-      document.getElementById('grand-upt').innerText = grandTrx > 0 ? (grandQty / grandTrx).toFixed(2) : "0.00";
-      document.getElementById('grand-atv').innerText = grandTrx > 0 ? formatRp(grandSales / grandTrx) : "Rp 0";
+      document.getElementById('grand-upt').innerText = storeData.length > 0 ? (storeData.reduce((a,b)=>a+b.upt,0)/storeData.length).toFixed(2) : "0.00";
+      document.getElementById('grand-atv').innerText = storeData.length > 0 ? formatRp(storeData.reduce((a,b)=>a+b.atv,0)/storeData.length) : "Rp 0";
     }
 
     loadData();
