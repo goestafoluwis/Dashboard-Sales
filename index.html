@@ -122,7 +122,6 @@
   </div>
 
   <script>
-    // Hanya butuh link, karena target sekarang diambil dinamis dari sel GS
     const STORES_CONFIG = [
       { name: "JW1003 ASMD", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv" },
       { name: "JW4001 XMDG", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv" }
@@ -140,12 +139,11 @@
     }
     setInterval(updateTimestamp, 1000); updateTimestamp();
 
-    // Fungsi pembersih angka yang lebih ketat (menghapus Rp, titik ribuan, ubah koma desimal)
     function parseNum(val) {
       if (!val) return 0;
       let str = val.toString().replace(/Rp| /gi, '').trim();
-      str = str.replace(/\./g, ''); // Hapus titik ribuan
-      str = str.replace(/,/g, '.'); // Koma jadi titik (desimal)
+      str = str.replace(/\./g, ''); 
+      str = str.replace(/,/g, '.'); 
       return parseFloat(str) || 0;
     }
 
@@ -162,47 +160,33 @@
         return new Promise((resolve) => {
           Papa.parse(store.url, {
             download: true,
-            header: false, // Wajib false agar bisa tembak sel via index [row][col]
+            header: false,
             skipEmptyLines: false,
             complete: function(results) {
               const rows = results.data;
               
-              // 1. AMBIL TARGET DARI G5, H5, I5, J5 (Baris 5 = Index 4)
-              // Kolom G=6, H=7, I=8, J=9
-              let t1 = 0, t2 = 0, t3 = 0, t4 = 0;
-              if (rows.length > 4) {
-                t1 = parseNum(rows[4][6]) || 800000000; // Fallback jika kosong
-                t2 = parseNum(rows[4][7]) || 950000000;
-                t3 = parseNum(rows[4][8]) || 1050000000;
-                t4 = parseNum(rows[4][9]) || 1125000000;
+              // TARGET LEVEL DIAMBIT DARI BARIS 5 (Index 4) -> G, H, I, J (Index 6, 7, 8, 9)
+              let t1 = rows[4] ? parseNum(rows[4][6]) : 0; // G5
+              let t2 = rows[4] ? parseNum(rows[4][7]) : 0; // H5
+              let t3 = rows[4] ? parseNum(rows[4][8]) : 0; // I5
+              let t4 = rows[4] ? parseNum(rows[4][9]) : 0; // J5
+
+              // TOTAL SALES MTD DIAMBIL MUTLAK DARI KOLOM E BARIS 49 (Index row 48, col 4)
+              let totalSales = 0;
+              if (rows.length > 48 && rows[48]) {
+                totalSales = parseNum(rows[48][4]);
               }
 
-              let totalSales = 0;
+              // HITUNG TOTAL TRANSAKSI (Kolom H / Index 7) dari baris tanggal 1 s.d. 31 (Row 17 s.d 47)
               let totalTrx = 0;
-              let totalQty = 0;
-
-              // 2. MENCARI BARIS "TOTAL SALES" SECARA OTOMATIS
-              for (let i = 0; i < rows.length; i++) {
-                let rowStr = rows[i].join(' ').toUpperCase();
-                
-                // Jika ketemu baris yang ada tulisan "TOTAL SALES"
-                if (rowStr.includes('TOTAL SALES')) {
-                  totalSales = parseNum(rows[i][4]); // Kolom E (Index 4)
-                  break; // Stop pencarian setelah ketemu
+              for (let i = 16; i <= 46; i++) {
+                if (rows[i] && rows[i][7]) {
+                  let trxVal = parseNum(rows[i][7]);
+                  if (trxVal > 0) totalTrx += trxVal;
                 }
               }
 
-              // 3. MENGHITUNG TRANSAKSI (Kolom H / Index 7)
-              // Karena datanya akumulasi, kita loop baris-baris sebelumnya
-              for (let i = 16; i < rows.length; i++) {
-                let rowStr = rows[i].join(' ').toUpperCase();
-                if (rowStr.includes('TOTAL SALES')) break; // Stop kalau udah mentok bawah
-                
-                let trxVal = parseNum(rows[i][7]);
-                if (trxVal > 0) totalTrx += trxVal;
-              }
-
-              totalQty = Math.round(totalTrx * 3.2); 
+              let totalQty = Math.round(totalTrx * 3.2);
 
               resolve({
                 ...store,
@@ -237,7 +221,7 @@
         let sisaTarget = 0;
         let targetText = "";
 
-        // Logika 4 Level
+        // Logika Level Berdasarkan Target G5, H5, I5, J5
         if (store.sales >= store.targets[3]) { 
           currentLevel = 4; progressPct = 100;
           targetText = `<span style="color:#10b981;">🏆 Level 4 Achieved!</span>`;
@@ -258,7 +242,7 @@
           targetText = `Target Lvl 2: <b>${formatRp(nextTarget)}</b>`;
         } else { 
           nextTarget = store.targets[0];
-          progressPct = (store.sales / store.targets[0]) * 25;
+          progressPct = store.targets[0] > 0 ? (store.sales / store.targets[0]) * 25 : 0;
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 1: <b>${formatRp(nextTarget)}</b>`;
         }
