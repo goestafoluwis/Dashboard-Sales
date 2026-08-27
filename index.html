@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Performa UPT Kasir</title>
+  <title>Dashboard Performa Eksekutif</title>
 
-  <!-- Google Fonts & Chart.js & PapaParse -->
+  <!-- Google Fonts & PapaParse -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <style>
@@ -24,7 +23,7 @@
       padding-bottom: 40px;
     }
 
-    /* Navbar / Header Purple */
+    /* Navbar / Header Purple (Sesuai Referensi) */
     .top-header {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       color: white;
@@ -59,316 +58,235 @@
       font-size: 0.75rem;
     }
 
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .btn-action {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      backdrop-filter: blur(5px);
-    }
-
-    .btn-accent {
-      background: #fbbf24;
-      color: #1e1b4b;
-      border: none;
-    }
-
     /* Container */
     .container {
-      max-width: 1280px;
-      margin: -15px auto 0 auto;
+      max-width: 1100px;
+      margin: 30px auto 0 auto;
       padding: 0 20px;
     }
 
-    /* Filter Bar */
-    .filter-card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px 24px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      margin-bottom: 20px;
-    }
-
-    .filter-group label {
-      display: block;
-      font-size: 0.75rem;
+    /* Overall Summary Cards */
+    .summary-title {
+      font-size: 1.1rem;
       font-weight: 700;
-      color: #64748b;
-      margin-bottom: 6px;
-      text-transform: uppercase;
+      color: #1e293b;
+      margin-bottom: 15px;
     }
 
-    .filter-group select, .filter-group input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      outline: none;
-      font-size: 0.85rem;
-      color: #334155;
-      background: #f8fafc;
-    }
-
-    /* KPI Summary Cards */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
-      margin-bottom: 24px;
+      margin-bottom: 40px;
     }
 
     .kpi-card {
       background: white;
-      border-radius: 12px;
-      padding: 20px 24px;
+      border-radius: 16px;
+      padding: 24px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 20px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      border: 1px solid #f1f5f9;
     }
 
+    .kpi-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .icon-pink { background: #fce7f3; color: #ec4899; }
+    .icon-purple { background: #f3e8ff; color: #a855f7; }
+
     .kpi-info .kpi-label {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       font-weight: 700;
       color: #64748b;
       text-transform: uppercase;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .kpi-info .kpi-value {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: #0f172a;
     }
 
-    .kpi-value.purple { color: #6366f1; }
-
-    .kpi-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
+    /* Progress Cards (Per Toko) */
+    .store-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 24px;
     }
 
-    .icon-pink { background: #fce7f3; color: #ec4899; }
-    .icon-green { background: #dcfce7; color: #22c55e; }
-    .icon-purple { background: #f3e8ff; color: #a855f7; }
-
-    /* Main Chart Card */
-    .chart-card {
+    .store-card {
       background: white;
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 24px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      margin-bottom: 24px;
+      border: 1px solid #f1f5f9;
+      transition: transform 0.2s ease;
     }
 
-    .chart-header {
+    .store-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+    }
+
+    .store-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
     }
 
-    .chart-title {
-      font-size: 1.05rem;
-      font-weight: 700;
+    .store-name {
+      font-size: 1.2rem;
+      font-weight: 800;
       color: #1e293b;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
-    .chart-subtitle {
+    .store-stats {
+      display: flex;
+      gap: 15px;
+    }
+
+    .stat-badge {
+      background: #f8fafc;
+      padding: 6px 12px;
+      border-radius: 8px;
       font-size: 0.8rem;
+      font-weight: 700;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Custom Progress Bar */
+    .progress-section {
+      margin-top: 20px;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .current-level {
+      color: #6366f1;
+    }
+
+    .target-level {
       color: #94a3b8;
     }
 
-    .chart-container {
-      position: relative;
-      height: 320px;
+    .progress-track {
       width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
     }
 
-    /* Table Section */
-    .table-card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      overflow-x: auto;
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+      border-radius: 10px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th {
-      background: #f8fafc;
+    .progress-desc {
+      margin-top: 10px;
+      font-size: 0.8rem;
       color: #64748b;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 12px 16px;
-      border-bottom: 1px solid #e2e8f0;
+      font-weight: 500;
     }
 
-    td {
-      padding: 16px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border-bottom: 1px solid #f1f5f9;
-      color: #334155;
+    .level-achieved {
+      color: #10b981 !important;
     }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      background: #ffe4e6;
-      color: #e11d48;
-      border: 1px solid #fecdd3;
+    
+    @media (max-width: 768px) {
+      .kpi-grid, .store-grid { grid-template-columns: 1fr; }
+      .top-header { flex-direction: column; gap: 15px; text-align: center; }
     }
-
-    .status-badge.achieved {
-      background: #dcfce7;
-      color: #16a34a;
-      border-color: #bbf7d0;
-    }
-
-    .text-purple { color: #6366f1; font-weight: 700; }
-    .text-red { color: #e11d48; font-weight: 700; }
   </style>
 </head>
 <body>
 
-  <!-- Header Purple -->
+  <!-- Header -->
   <header class="top-header">
     <div class="brand-title">
-      <h1>📊 Dashboard Performa UPT Kasir</h1>
+      <h1>📊 Dashboard Executive Sales</h1>
       <div class="brand-subtitle">
-        Monitoring Capaian UPT Per Toko & Staff 
-        <span class="badge-guest">Guest</span> • 
-        <span id="current-timestamp">Loading...</span>
+        Monitoring Capaian Level Eksekutif 
+        <span class="badge-guest">Live</span> • 
+        <span id="current-timestamp">Memuat Waktu...</span>
       </div>
-    </div>
-    <div class="header-actions">
-      <button class="btn-action">📊 Export Rekap (CSV)</button>
-      <button class="btn-action">🌙 Dark</button>
-      <button class="btn-action btn-accent">🔑 Switch Access</button>
     </div>
   </header>
 
   <div class="container">
     
-    <!-- Filter Bar -->
-    <div class="filter-card">
-      <div class="filter-group">
-        <label>Bulan & Tahun</label>
-        <input type="month" value="2026-08">
-      </div>
-      <div class="filter-group">
-        <label>Kategori Grup Toko</label>
-        <select><option>Semua</option></select>
-      </div>
-      <div class="filter-group">
-        <label>Asst. Branch Manager (ABM)</label>
-        <select><option>Semua</option></select>
-      </div>
-      <div class="filter-group">
-        <label>Branch Manager (BM)</label>
-        <select><option>Semua</option></select>
-      </div>
-    </div>
-
-    <!-- Metric Cards -->
+    <div class="summary-title">Summary Keseluruhan (Bulan Berjalan)</div>
+    
+    <!-- Top KPI Level (Gabungan) -->
     <div class="kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-info">
-          <div class="kpi-label">Total Qty Sold</div>
-          <div class="kpi-value" id="kpi-qty">0</div>
-        </div>
         <div class="kpi-icon icon-pink">🛍️</div>
+        <div class="kpi-info">
+          <div class="kpi-label">Total Penjualan (Qty)</div>
+          <div class="kpi-value" id="grand-qty">0</div>
+        </div>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon icon-purple">💳</div>
         <div class="kpi-info">
           <div class="kpi-label">Total Transaksi</div>
-          <div class="kpi-value" id="kpi-trx">0</div>
+          <div class="kpi-value" id="grand-trx">0</div>
         </div>
-        <div class="kpi-icon icon-green">💳</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-info">
-          <div class="kpi-label">Rata-Rata UPT Capaian</div>
-          <div class="kpi-value purple" id="kpi-upt">0.00</div>
-        </div>
-        <div class="kpi-icon icon-purple">📈</div>
       </div>
     </div>
 
-    <!-- Chart Batang (Actual vs Target) -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <div class="chart-title">📊 Performa UPT Per Toko vs Target Level 1</div>
-        <div class="chart-subtitle">Interaktif & Real-time</div>
-      </div>
-      <div class="chart-container">
-        <canvas id="uptChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Tabel Rincian Data -->
-    <div class="table-card">
-      <table>
-        <thead>
-          <tr>
-            <th>NAMA TOKO</th>
-            <th>TOTAL QTY SOLD</th>
-            <th>TOTAL TRANSAKSI</th>
-            <th>UPT ACTUAL TOKO</th>
-            <th>TARGET LEVEL 1</th>
-            <th>% CAPAIAN TOKO</th>
-            <th>BEST ESTIMATE LEVEL</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <tr><td colspan="7" style="text-align: center;">Memuat data dari Google Sheets...</td></tr>
-        </tbody>
-      </table>
+    <div class="summary-title">Progress Capaian Level Per Toko</div>
+    
+    <!-- Area Card Tiap Toko (Digenerate oleh JS) -->
+    <div class="store-grid" id="store-container">
+      <!-- Loading Placeholder -->
+      <div style="color: #64748b; font-weight: 600;">Sinkronisasi data dari Google Sheets...</div>
     </div>
 
   </div>
 
   <script>
-    // URL CSV Google Sheets dari Anda
+    // Konfigurasi Link Google Sheets Anda & Target Level (Misal: Target Lvl 1 = 100 Trx, Lvl 2 = 300 Trx, dsb)
+    // Silakan sesuaikan targetPoints dengan indikator yang Anda pakai (apakah berdasarkan jumlah transaksi atau qty)
     const STORES_CONFIG = [
-      { name: "Toko 1", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv", target: 4.05 },
-      { name: "Toko 2", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv", target: 4.36 }
+      { 
+        name: "Toko 1", 
+        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv",
+        targetLvl1: 50,
+        targetLvl2: 150,
+        targetLvl3: 300 
+      },
+      { 
+        name: "Toko 2", 
+        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv",
+        targetLvl1: 50,
+        targetLvl2: 150,
+        targetLvl3: 300 
+      }
     ];
 
-    let storeDataResults = [];
-    let uptChartInstance = null;
-
-    // Set Live Timestamp
+    // Live Jam
     function updateTimestamp() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -377,7 +295,7 @@
     setInterval(updateTimestamp, 1000);
     updateTimestamp();
 
-    // Load CSV Data menggunakan PapaParse
+    // Fungsi Fetch & Kalkulasi Data
     function loadData() {
       let fetchPromises = STORES_CONFIG.map(store => {
         return new Promise((resolve) => {
@@ -388,30 +306,25 @@
             complete: function(results) {
               const data = results.data;
               
-              // Hitung Qty & Transaksi otomatis dari Sheet
               let totalQty = 0;
               let totalTrx = data.length;
 
-              // Mencari kolom yang berisi quantity/jumlah
+              // Coba cari kolom qty otomatis
               if (data.length > 0) {
                 const keys = Object.keys(data[0]);
-                const qtyKey = keys.find(k => k.toLowerCase().includes('qty') || k.toLowerCase().includes('jumlah') || k.toLowerCase().includes('item') || k.toLowerCase().includes('total'));
-                
+                const qtyKey = keys.find(k => k.toLowerCase().includes('qty') || k.toLowerCase().includes('jumlah'));
                 if (qtyKey) {
-                  totalQty = data.reduce((acc, row) => acc + (parseFloat(row[qtyKey]) || 1), 0);
+                  totalQty = data.reduce((acc, row) => acc + (parseFloat(row[qtyKey]) || 0), 0);
                 } else {
-                  totalQty = totalTrx * 3.2; // Fallback estimate jika kolom tak ada
+                  totalQty = totalTrx * 2; // Asumsi jika tidak ada kolom qty
                 }
               }
 
-              let uptActual = totalTrx > 0 ? (totalQty / totalTrx) : 0;
-
               resolve({
-                name: store.name,
+                ...store,
                 qty: totalQty,
                 trx: totalTrx,
-                uptActual: parseFloat(uptActual.toFixed(2)),
-                target: store.target
+                score: totalTrx // Anggap capaian level berdasarkan total transaksi. (Ganti ke 'totalQty' jika berbasis sales qty)
               });
             }
           });
@@ -419,108 +332,94 @@
       });
 
       Promise.all(fetchPromises).then(results => {
-        storeDataResults = results;
-        updateDashboardUI();
+        renderDashboardUI(results);
       });
     }
 
-    function updateDashboardUI() {
+    // Fungsi Render Tampilan Clean
+    function renderDashboardUI(storeData) {
       let grandQty = 0;
       let grandTrx = 0;
+      const container = document.getElementById('store-container');
+      container.innerHTML = ''; // Clear container
 
-      storeDataResults.forEach(item => {
-        grandQty += item.qty;
-        grandTrx += item.trx;
-      });
+      storeData.forEach(store => {
+        grandQty += store.qty;
+        grandTrx += store.trx;
 
-      let avgUpt = grandTrx > 0 ? (grandQty / grandTrx) : 0;
+        // Logika Leveling
+        let currentLevel = 0;
+        let nextTarget = store.targetLvl1;
+        let progressPct = 0;
+        let levelText = "Belum Mencapai Level";
+        let nextLevelText = "Target: Level 1";
+        let sisaTarget = 0;
 
-      // Update KPI Top Cards
-      document.getElementById('kpi-qty').innerText = grandQty.toLocaleString('id-ID');
-      document.getElementById('kpi-trx').innerText = grandTrx.toLocaleString('id-ID');
-      document.getElementById('kpi-upt').innerText = avgUpt.toFixed(2);
-
-      // Update Chart & Table
-      renderChart();
-      renderTable();
-    }
-
-    function renderChart() {
-      const ctx = document.getElementById('uptChart').getContext('2d');
-      const labels = storeDataResults.map(s => s.name);
-      const actualData = storeDataResults.map(s => s.uptActual);
-      const targetData = storeDataResults.map(s => s.target);
-
-      if (uptChartInstance) uptChartInstance.destroy();
-
-      uptChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'UPT Actual Toko',
-              data: actualData,
-              backgroundColor: '#a5b4fc',
-              borderColor: '#6366f1',
-              borderWidth: 1,
-              borderRadius: 6,
-              barPercentage: 0.3
-            },
-            {
-              label: 'Target Level 1',
-              data: targetData,
-              backgroundColor: '#fed7aa',
-              borderColor: '#f97316',
-              borderWidth: 1,
-              borderRadius: 6,
-              barPercentage: 0.3
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'top' }
-          },
-          scales: {
-            y: { beginAtZero: true, max: 5.0 }
-          }
+        if (store.score >= store.targetLvl3) {
+          currentLevel = 3;
+          progressPct = 100;
+          levelText = "🏆 Level 3 Achieved";
+          nextLevelText = "Max Level";
+          sisaTarget = 0;
+        } else if (store.score >= store.targetLvl2) {
+          currentLevel = 2;
+          nextTarget = store.targetLvl3;
+          progressPct = ((store.score - store.targetLvl2) / (store.targetLvl3 - store.targetLvl2)) * 100;
+          levelText = "⭐ Level 2 Achieved";
+          nextLevelText = "Target: Level 3";
+          sisaTarget = nextTarget - store.score;
+        } else if (store.score >= store.targetLvl1) {
+          currentLevel = 1;
+          nextTarget = store.targetLvl2;
+          progressPct = ((store.score - store.targetLvl1) / (store.targetLvl2 - store.targetLvl1)) * 100;
+          levelText = "🎯 Level 1 Achieved";
+          nextLevelText = "Target: Level 2";
+          sisaTarget = nextTarget - store.score;
+        } else {
+          progressPct = (store.score / store.targetLvl1) * 100;
+          sisaTarget = store.targetLvl1 - store.score;
         }
-      });
-    }
 
-    function renderTable() {
-      const tbody = document.getElementById('table-body');
-      tbody.innerHTML = '';
+        // HTML untuk Kartu Toko
+        const cardHTML = `
+          <div class="store-card">
+            <div class="store-header">
+              <div class="store-name">${store.name}</div>
+              <div class="store-stats">
+                <div class="stat-badge">Qty: ${store.qty.toLocaleString('id-ID')}</div>
+                <div class="stat-badge">Trx: ${store.trx.toLocaleString('id-ID')}</div>
+              </div>
+            </div>
 
-      storeDataResults.forEach(item => {
-        let capaianPct = ((item.uptActual / item.target) * 100).toFixed(1);
-        let isAchieved = item.uptActual >= item.target;
+            <div class="progress-section">
+              <div class="progress-labels">
+                <span class="current-level ${currentLevel > 0 ? 'level-achieved' : ''}">${levelText}</span>
+                <span class="target-level">${nextLevelText}</span>
+              </div>
+              
+              <div class="progress-track">
+                <div class="progress-fill" style="width: ${progressPct}%"></div>
+              </div>
 
-        let row = `
-          <tr>
-            <td><b>${item.name}</b></td>
-            <td>${item.qty.toLocaleString('id-ID')}</td>
-            <td>${item.trx.toLocaleString('id-ID')}</td>
-            <td class="text-purple">${item.uptActual}</td>
-            <td>${item.target}</td>
-            <td class="${isAchieved ? '' : 'text-red'}">${capaianPct}%</td>
-            <td>
-              <span class="status-badge ${isAchieved ? 'achieved' : ''}">
-                ${isAchieved ? ' Achieved Level 1' : ' Below Level 1'}
-              </span>
-            </td>
-          </tr>
+              <div class="progress-desc">
+                ${sisaTarget > 0 
+                  ? `Butuh <b>${Math.ceil(sisaTarget).toLocaleString('id-ID')}</b> transaksi lagi untuk naik level.` 
+                  : `Target tertinggi periode ini telah tercapai!`}
+              </div>
+            </div>
+          </div>
         `;
-        tbody.innerHTML += row;
+        container.innerHTML += cardHTML;
       });
+
+      // Update Angka Summary Atas
+      document.getElementById('grand-qty').innerText = grandQty.toLocaleString('id-ID');
+      document.getElementById('grand-trx').innerText = grandTrx.toLocaleString('id-ID');
     }
 
-    // Load Pertama Kali & Auto Update tiap 10 detik
+    // Jalankan & Auto Update 15 Detik
     loadData();
-    setInterval(loadData, 10000);
+    setInterval(loadData, 15000);
   </script>
 </body>
 </html>
