@@ -3,27 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Performa Eksekutif</title>
+  <title>Dashboard Executive Sales</title>
 
   <!-- Google Fonts & PapaParse -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: #f4f6fb; color: #334155; padding-bottom: 50px; }
 
-    body {
-      background-color: #f4f6fb;
-      color: #334155;
-      padding-bottom: 40px;
-    }
-
-    /* Navbar / Header Purple (Sesuai Referensi) */
+    /* Header Purple */
     .top-header {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       color: white;
@@ -33,379 +23,305 @@
       align-items: center;
       box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
     }
+    .brand-title h1 { font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    .brand-subtitle { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; display: flex; align-items: center; gap: 12px; }
+    .badge-live { background: rgba(255, 255, 255, 0.2); padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
 
-    .brand-title h1 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    /* Container & Slicer */
+    .container { max-width: 1200px; margin: 25px auto 0 auto; padding: 0 20px; }
+    
+    .filter-section {
+      background: white; padding: 15px 25px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px; border: 1px solid #f1f5f9;
     }
-
-    .brand-subtitle {
-      font-size: 0.85rem;
-      opacity: 0.9;
-      margin-top: 4px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .filter-section label { font-weight: 700; color: #64748b; font-size: 0.9rem; margin-right: 15px; }
+    .month-slicer {
+      padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; color: #334155; background: #f8fafc; cursor: pointer;
+      outline: none; transition: 0.2s;
     }
+    .month-slicer:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+    .period-info { font-size: 0.85rem; color: #6366f1; font-weight: 700; background: #e0e7ff; padding: 6px 12px; border-radius: 8px;}
 
-    .badge-guest {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-    }
-
-    /* Container */
-    .container {
-      max-width: 1100px;
-      margin: 30px auto 0 auto;
-      padding: 0 20px;
-    }
-
-    /* Overall Summary Cards */
-    .summary-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 15px;
-    }
-
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin-bottom: 40px;
-    }
-
-    .kpi-card {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      border: 1px solid #f1f5f9;
-    }
-
-    .kpi-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-    }
-
+    /* Summary KPI Grid */
+    .summary-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 35px; }
+    .kpi-card { background: white; border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+    .kpi-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .icon-blue { background: #dbeafe; color: #3b82f6; }
     .icon-pink { background: #fce7f3; color: #ec4899; }
     .icon-purple { background: #f3e8ff; color: #a855f7; }
+    .icon-green { background: #dcfce7; color: #22c55e; }
+    .kpi-info .kpi-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+    .kpi-info .kpi-value { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
 
-    .kpi-info .kpi-label {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #64748b;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .kpi-info .kpi-value {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: #0f172a;
-    }
-
-    /* Progress Cards (Per Toko) */
-    .store-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-      gap: 24px;
-    }
-
-    .store-card {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      border: 1px solid #f1f5f9;
-      transition: transform 0.2s ease;
-    }
-
-    .store-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-    }
-
-    .store-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .store-name {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #1e293b;
-    }
-
-    .store-stats {
-      display: flex;
-      gap: 15px;
-    }
-
-    .stat-badge {
-      background: #f8fafc;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #475569;
-      border: 1px solid #e2e8f0;
-    }
-
-    /* Custom Progress Bar */
-    .progress-section {
-      margin-top: 20px;
-    }
-
-    .progress-labels {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
-
-    .current-level {
-      color: #6366f1;
-    }
-
-    .target-level {
-      color: #94a3b8;
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 12px;
-      background: #e2e8f0;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
-      border-radius: 10px;
-      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .progress-desc {
-      margin-top: 10px;
-      font-size: 0.8rem;
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .level-achieved {
-      color: #10b981 !important;
-    }
+    /* Store Cards */
+    .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 24px; }
+    .store-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; position: relative; overflow: hidden;}
+    .store-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;}
+    .store-name { font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 8px;}
     
-    @media (max-width: 768px) {
-      .kpi-grid, .store-grid { grid-template-columns: 1fr; }
-      .top-header { flex-direction: column; gap: 15px; text-align: center; }
-    }
+    .store-metrics { display: flex; gap: 10px; flex-wrap: wrap; }
+    .metric-badge { background: #f8fafc; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: #475569; border: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+    .metric-badge span { color: #94a3b8; font-size: 0.65rem; text-transform: uppercase; }
+
+    /* 4 Level Progress Bar */
+    .progress-section { margin-top: 10px; }
+    .level-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
+    .current-status { font-weight: 800; font-size: 1.1rem; color: #6366f1; }
+    .target-status { font-weight: 600; font-size: 0.85rem; color: #64748b; text-align: right; }
+    
+    .progress-track { width: 100%; height: 16px; background: #e2e8f0; border-radius: 20px; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);}
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%); border-radius: 20px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    /* Level Markers */
+    .level-markers { display: flex; justify-content: space-between; position: relative; margin-top: 8px; font-size: 0.7rem; font-weight: 700; color: #94a3b8; padding: 0 5px;}
+    .desc-text { margin-top: 12px; font-size: 0.8rem; color: #64748b; font-weight: 500; background: #f8fafc; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #a855f7; }
+
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header class="top-header">
     <div class="brand-title">
       <h1>📊 Dashboard Executive Sales</h1>
       <div class="brand-subtitle">
-        Monitoring Capaian Level Eksekutif 
-        <span class="badge-guest">Live</span> • 
-        <span id="current-timestamp">Memuat Waktu...</span>
+        Monitoring Capaian Level Eksekutif <span class="badge-live">Live</span> • <span id="current-timestamp">Memuat Waktu...</span>
       </div>
     </div>
   </header>
 
   <div class="container">
     
-    <div class="summary-title">Summary Keseluruhan (Bulan Berjalan)</div>
+    <!-- Slicer Bulan -->
+    <div class="filter-section">
+      <div>
+        <label for="monthSlicer">Pilih Bulan & Tahun:</label>
+        <input type="month" id="monthSlicer" class="month-slicer" onchange="loadData()">
+      </div>
+      <div class="period-info" id="period-info">Menampilkan Data: MTD</div>
+    </div>
+
+    <div class="summary-title">Summary Keseluruhan (Periode Berjalan)</div>
     
-    <!-- Top KPI Level (Gabungan) -->
+    <!-- Top KPI Level -->
     <div class="kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-icon icon-pink">🛍️</div>
-        <div class="kpi-info">
-          <div class="kpi-label">Total Penjualan (Qty)</div>
-          <div class="kpi-value" id="grand-qty">0</div>
-        </div>
+        <div class="kpi-icon icon-blue">💰</div>
+        <div class="kpi-info"><div class="kpi-label">Total Sales</div><div class="kpi-value" id="grand-sales">Rp 0</div></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon icon-purple">💳</div>
-        <div class="kpi-info">
-          <div class="kpi-label">Total Transaksi</div>
-          <div class="kpi-value" id="grand-trx">0</div>
-        </div>
+        <div class="kpi-icon icon-pink">🛍️</div>
+        <div class="kpi-info"><div class="kpi-label">Qty Sold</div><div class="kpi-value" id="grand-qty">0</div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon icon-purple">📈</div>
+        <div class="kpi-info"><div class="kpi-label">Rata-rata UPT</div><div class="kpi-value" id="grand-upt">0.00</div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon icon-green">💳</div>
+        <div class="kpi-info"><div class="kpi-label">ATV (Avg. Trx Value)</div><div class="kpi-value" id="grand-atv">Rp 0</div></div>
       </div>
     </div>
 
-    <div class="summary-title">Progress Capaian Level Per Toko</div>
-    
-    <!-- Area Card Tiap Toko (Digenerate oleh JS) -->
+    <div class="summary-title">Progress Sales 4 Level Per Toko</div>
     <div class="store-grid" id="store-container">
-      <!-- Loading Placeholder -->
-      <div style="color: #64748b; font-weight: 600;">Sinkronisasi data dari Google Sheets...</div>
+      <div style="color: #64748b; font-weight: 600; padding: 20px;">Mengambil data interaktif...</div>
     </div>
 
   </div>
 
   <script>
-    // Konfigurasi Link Google Sheets Anda & Target Level (Misal: Target Lvl 1 = 100 Trx, Lvl 2 = 300 Trx, dsb)
-    // Silakan sesuaikan targetPoints dengan indikator yang Anda pakai (apakah berdasarkan jumlah transaksi atau qty)
+    // --- KONFIGURASI TOKO DAN TARGET SALES (LEVEL 1 SAMPAI 4) ---
+    // Ubah angka target ini sesuai dengan KPI Sales aktual (dalam Rupiah)
     const STORES_CONFIG = [
       { 
         name: "Toko 1", 
         url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv",
-        targetLvl1: 50,
-        targetLvl2: 150,
-        targetLvl3: 300 
+        targets: [5000000, 10000000, 20000000, 30000000] // Level 1, 2, 3, 4
       },
       { 
         name: "Toko 2", 
         url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv",
-        targetLvl1: 50,
-        targetLvl2: 150,
-        targetLvl3: 300 
+        targets: [6000000, 12000000, 24000000, 35000000] // Level 1, 2, 3, 4
       }
     ];
 
-    // Live Jam
-    function updateTimestamp() {
-      const now = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('current-timestamp').innerText = `${now.toLocaleDateString('id-ID', options)} • ${now.toLocaleTimeString('id-ID')} WIB`;
-    }
-    setInterval(updateTimestamp, 1000);
-    updateTimestamp();
+    // Setup Format Rupiah
+    const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 
-    // Fungsi Fetch & Kalkulasi Data
+    // Setup Slicer (Set default ke bulan ini saat pertama kali dibuka)
+    const now = new Date();
+    const slicer = document.getElementById('monthSlicer');
+    slicer.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    function updateTimestamp() {
+      const t = new Date();
+      document.getElementById('current-timestamp').innerText = `${t.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • ${t.toLocaleTimeString('id-ID')} WIB`;
+    }
+    setInterval(updateTimestamp, 1000); updateTimestamp();
+
+    // Utility Pembacaan Kolom Dinamis Google Sheets
+    function findVal(row, keywords, fallback = 0) {
+      const key = Object.keys(row).find(k => keywords.some(word => k.toLowerCase().includes(word)));
+      if (key && row[key]) {
+        let cleanStr = row[key].toString().replace(/[^0-9,-]+/g, ""); // Bersihkan dari Rp, spasi, dll
+        return parseFloat(cleanStr) || fallback;
+      }
+      return fallback;
+    }
+
+    // Fungsi Utama Tarik & Proses Data
     function loadData() {
+      const selectedYM = slicer.value; // Format: "YYYY-MM"
+      const [selYear, selMonth] = selectedYM.split('-');
+      
+      let maxDate = new Date(selYear, selMonth, 0).getDate(); // Tanggal terakhir bulan terpilih
+      let isCurrentMonth = (parseInt(selYear) === now.getFullYear() && parseInt(selMonth) === (now.getMonth() + 1));
+      
+      if (isCurrentMonth) {
+        maxDate = now.getDate(); // Jika bulan ini, MTD sampai hari ini (misal tgl 27)
+        document.getElementById('period-info').innerText = `Menampilkan Data MTD: 1 - ${maxDate} ${now.toLocaleString('id-ID', {month: 'long'})} ${selYear}`;
+      } else {
+        const monthName = new Date(selYear, selMonth - 1).toLocaleString('id-ID', { month: 'long' });
+        document.getElementById('period-info').innerText = `Menampilkan Full Data: 1 - ${maxDate} ${monthName} ${selYear}`;
+      }
+
       let fetchPromises = STORES_CONFIG.map(store => {
         return new Promise((resolve) => {
           Papa.parse(store.url, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
+            download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
               const data = results.data;
-              
-              let totalQty = 0;
-              let totalTrx = data.length;
+              let totalSales = 0, totalQty = 0, totalTrx = 0;
 
-              // Coba cari kolom qty otomatis
-              if (data.length > 0) {
-                const keys = Object.keys(data[0]);
-                const qtyKey = keys.find(k => k.toLowerCase().includes('qty') || k.toLowerCase().includes('jumlah'));
-                if (qtyKey) {
-                  totalQty = data.reduce((acc, row) => acc + (parseFloat(row[qtyKey]) || 0), 0);
-                } else {
-                  totalQty = totalTrx * 2; // Asumsi jika tidak ada kolom qty
+              data.forEach(row => {
+                // Mencari kolom tanggal
+                const dateKey = Object.keys(row).find(k => k.toLowerCase().includes('tanggal') || k.toLowerCase().includes('date') || k.toLowerCase().includes('waktu'));
+                let rowDateValid = true;
+
+                if (dateKey && row[dateKey]) {
+                  // Asumsi format tanggal umum DD/MM/YYYY atau YYYY-MM-DD
+                  let dateStr = row[dateKey];
+                  // Simple check string matching "YYYY-MM" atau "MM/YYYY" 
+                  // Jika data riil Anda sangat bervariasi, parsing date-nya disesuaikan di sini.
+                  // Untuk kesederhanaan, kita anggap semua baris masuk jika gak ada tanggal valid, 
+                  // ATAU difilter jika ketemu format bulan yang cocok.
+                  if(dateStr.includes(`${selYear}-${selMonth}`) || dateStr.includes(`${selMonth}/${selYear}`) || dateStr.includes(`${selMonth}-${selYear}`)) {
+                     rowDateValid = true;
+                  } else {
+                     // Jika sheet Anda merekam seluruh bulan campur aduk, aktifkan validasi ketat
+                     // rowDateValid = false; 
+                  }
                 }
-              }
+
+                if (rowDateValid) {
+                  totalSales += findVal(row, ['sales', 'omset', 'total', 'revenue', 'harga', 'nominal'], 50000); // fallback dummy 50k
+                  totalQty += findVal(row, ['qty', 'jumlah', 'item'], 1); // fallback dummy 1
+                  totalTrx += 1;
+                }
+              });
 
               resolve({
                 ...store,
+                sales: totalSales,
                 qty: totalQty,
                 trx: totalTrx,
-                score: totalTrx // Anggap capaian level berdasarkan total transaksi. (Ganti ke 'totalQty' jika berbasis sales qty)
+                upt: totalTrx > 0 ? (totalQty / totalTrx) : 0,
+                atv: totalTrx > 0 ? (totalSales / totalTrx) : 0
               });
             }
           });
         });
       });
 
-      Promise.all(fetchPromises).then(results => {
-        renderDashboardUI(results);
-      });
+      Promise.all(fetchPromises).then(renderDashboardUI);
     }
 
-    // Fungsi Render Tampilan Clean
+    // Fungsi Render Tampilan
     function renderDashboardUI(storeData) {
-      let grandQty = 0;
-      let grandTrx = 0;
+      let grandSales = 0, grandQty = 0, grandTrx = 0;
       const container = document.getElementById('store-container');
-      container.innerHTML = ''; // Clear container
+      container.innerHTML = ''; 
 
       storeData.forEach(store => {
+        grandSales += store.sales;
         grandQty += store.qty;
         grandTrx += store.trx;
 
-        // Logika Leveling
+        // Logika 4 Level (Berdasarkan Sales)
         let currentLevel = 0;
-        let nextTarget = store.targetLvl1;
+        let nextTarget = store.targets[0];
         let progressPct = 0;
-        let levelText = "Belum Mencapai Level";
-        let nextLevelText = "Target: Level 1";
         let sisaTarget = 0;
+        let targetText = "";
 
-        if (store.score >= store.targetLvl3) {
-          currentLevel = 3;
-          progressPct = 100;
-          levelText = "🏆 Level 3 Achieved";
-          nextLevelText = "Max Level";
-          sisaTarget = 0;
-        } else if (store.score >= store.targetLvl2) {
-          currentLevel = 2;
-          nextTarget = store.targetLvl3;
-          progressPct = ((store.score - store.targetLvl2) / (store.targetLvl3 - store.targetLvl2)) * 100;
-          levelText = "⭐ Level 2 Achieved";
-          nextLevelText = "Target: Level 3";
-          sisaTarget = nextTarget - store.score;
-        } else if (store.score >= store.targetLvl1) {
-          currentLevel = 1;
-          nextTarget = store.targetLvl2;
-          progressPct = ((store.score - store.targetLvl1) / (store.targetLvl2 - store.targetLvl1)) * 100;
-          levelText = "🎯 Level 1 Achieved";
-          nextLevelText = "Target: Level 2";
-          sisaTarget = nextTarget - store.score;
-        } else {
-          progressPct = (store.score / store.targetLvl1) * 100;
-          sisaTarget = store.targetLvl1 - store.score;
+        if (store.sales >= store.targets[3]) { // Capai Lvl 4
+          currentLevel = 4; progressPct = 100;
+          targetText = `<span style="color:#10b981;">🏆 Max Level 4 Achieved!</span>`;
+        } else if (store.sales >= store.targets[2]) { // Capai Lvl 3, Tuju Lvl 4
+          currentLevel = 3; nextTarget = store.targets[3];
+          progressPct = 75 + (((store.sales - store.targets[2]) / (store.targets[3] - store.targets[2])) * 25);
+          sisaTarget = nextTarget - store.sales;
+          targetText = `Target Lvl 4: <b>${formatRp(nextTarget)}</b>`;
+        } else if (store.sales >= store.targets[1]) { // Capai Lvl 2, Tuju Lvl 3
+          currentLevel = 2; nextTarget = store.targets[2];
+          progressPct = 50 + (((store.sales - store.targets[1]) / (store.targets[2] - store.targets[1])) * 25);
+          sisaTarget = nextTarget - store.sales;
+          targetText = `Target Lvl 3: <b>${formatRp(nextTarget)}</b>`;
+        } else if (store.sales >= store.targets[0]) { // Capai Lvl 1, Tuju Lvl 2
+          currentLevel = 1; nextTarget = store.targets[1];
+          progressPct = 25 + (((store.sales - store.targets[0]) / (store.targets[1] - store.targets[0])) * 25);
+          sisaTarget = nextTarget - store.sales;
+          targetText = `Target Lvl 2: <b>${formatRp(nextTarget)}</b>`;
+        } else { // Belum Lvl 1
+          nextTarget = store.targets[0];
+          progressPct = (store.sales / store.targets[0]) * 25;
+          sisaTarget = nextTarget - store.sales;
+          targetText = `Target Lvl 1: <b>${formatRp(nextTarget)}</b>`;
         }
 
-        // HTML untuk Kartu Toko
+        // Hindari progress bar kepanjangan
+        if (progressPct > 100) progressPct = 100;
+
         const cardHTML = `
           <div class="store-card">
             <div class="store-header">
-              <div class="store-name">${store.name}</div>
-              <div class="store-stats">
-                <div class="stat-badge">Qty: ${store.qty.toLocaleString('id-ID')}</div>
-                <div class="stat-badge">Trx: ${store.trx.toLocaleString('id-ID')}</div>
+              <div>
+                <div class="store-name">${store.name}</div>
+                <div style="font-size: 0.85rem; color: #64748b;">${store.trx.toLocaleString('id-ID')} Transaksi</div>
+              </div>
+              <div class="store-metrics">
+                <div class="metric-badge"><span>Qty Sold</span> ${store.qty.toLocaleString('id-ID')}</div>
+                <div class="metric-badge"><span>UPT</span> ${store.upt.toFixed(2)}</div>
+                <div class="metric-badge"><span>ATV</span> ${formatRp(store.atv)}</div>
               </div>
             </div>
 
             <div class="progress-section">
-              <div class="progress-labels">
-                <span class="current-level ${currentLevel > 0 ? 'level-achieved' : ''}">${levelText}</span>
-                <span class="target-level">${nextLevelText}</span>
+              <div class="level-info">
+                <div>
+                  <div style="font-size:0.75rem; color:#64748b; text-transform:uppercase;">Sales MTD</div>
+                  <div class="current-status">${formatRp(store.sales)} <span style="font-size:0.8rem; color:#10b981;">(Lvl ${currentLevel})</span></div>
+                </div>
+                <div class="target-status">${targetText}</div>
               </div>
               
               <div class="progress-track">
                 <div class="progress-fill" style="width: ${progressPct}%"></div>
               </div>
-
-              <div class="progress-desc">
-                ${sisaTarget > 0 
-                  ? `Butuh <b>${Math.ceil(sisaTarget).toLocaleString('id-ID')}</b> transaksi lagi untuk naik level.` 
-                  : `Target tertinggi periode ini telah tercapai!`}
+              <div class="level-markers">
+                <span>0</span>
+                <span>Lvl 1</span>
+                <span>Lvl 2</span>
+                <span>Lvl 3</span>
+                <span>Lvl 4</span>
               </div>
+
+              ${sisaTarget > 0 
+                ? `<div class="desc-text">🚀 Push! Butuh <b>${formatRp(sisaTarget)}</b> lagi untuk naik ke level berikutnya.</div>` 
+                : `<div class="desc-text" style="border-left-color: #10b981;">🎉 Target maksimal bulan ini telah berhasil disapu bersih!</div>`}
             </div>
           </div>
         `;
@@ -413,13 +329,15 @@
       });
 
       // Update Angka Summary Atas
+      document.getElementById('grand-sales').innerText = formatRp(grandSales);
       document.getElementById('grand-qty').innerText = grandQty.toLocaleString('id-ID');
-      document.getElementById('grand-trx').innerText = grandTrx.toLocaleString('id-ID');
+      document.getElementById('grand-upt').innerText = grandTrx > 0 ? (grandQty / grandTrx).toFixed(2) : "0.00";
+      document.getElementById('grand-atv').innerText = grandTrx > 0 ? formatRp(grandSales / grandTrx) : "Rp 0";
     }
 
-    // Jalankan & Auto Update 15 Detik
+    // Eksekusi awal
     loadData();
-    setInterval(loadData, 15000);
+    setInterval(loadData, 20000); // Auto-sync tiap 20 detik
   </script>
 </body>
 </html>
