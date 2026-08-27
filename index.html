@@ -122,24 +122,14 @@
   </div>
 
   <script>
-    // --- TARGET SALES KUSTOM PER TOKO (Sesuaikan jika target level berbeda) ---
+    // Hanya butuh link, karena target sekarang diambil dinamis dari sel GS
     const STORES_CONFIG = [
-      { 
-        name: "JW1003 ASMD", 
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv",
-        // Target Level 1, 2, 3, 4 (dalam Rupiah)
-        targets: [800000000, 950000000, 1050000000, 1125359200] 
-      },
-      { 
-        name: "JW4001 XMDG", 
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv",
-        targets: [750000000, 900000000, 1000000000, 1100000000] 
-      }
+      { name: "JW1003 ASMD", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv" },
+      { name: "JW4001 XMDG", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv" }
     ];
 
     const formatRp = (num) => "Rp " + Math.round(num).toLocaleString('id-ID');
 
-    // Default Slicer ke bulan berjalan
     const now = new Date();
     const slicer = document.getElementById('monthSlicer');
     slicer.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -150,11 +140,13 @@
     }
     setInterval(updateTimestamp, 1000); updateTimestamp();
 
-    // Cleaning string Rupiah/Format Angka GS
+    // Fungsi pembersih angka yang lebih ketat (menghapus Rp, titik ribuan, ubah koma desimal)
     function parseNum(val) {
       if (!val) return 0;
-      let cleaned = val.toString().replace(/Rp|\.| /g, '').replace(',', '.');
-      return parseFloat(cleaned) || 0;
+      let str = val.toString().replace(/Rp| /gi, '').trim();
+      str = str.replace(/\./g, ''); // Hapus titik ribuan
+      str = str.replace(/,/g, '.'); // Koma jadi titik (desimal)
+      return parseFloat(str) || 0;
     }
 
     function loadData() {
@@ -170,43 +162,47 @@
         return new Promise((resolve) => {
           Papa.parse(store.url, {
             download: true,
-            header: false, // Membaca per baris mentah agar tepat sel E49 & Kolom H
+            header: false, // Wajib false agar bisa tembak sel via index [row][col]
             skipEmptyLines: false,
             complete: function(results) {
               const rows = results.data;
+              
+              // 1. AMBIL TARGET DARI G5, H5, I5, J5 (Baris 5 = Index 4)
+              // Kolom G=6, H=7, I=8, J=9
+              let t1 = 0, t2 = 0, t3 = 0, t4 = 0;
+              if (rows.length > 4) {
+                t1 = parseNum(rows[4][6]) || 800000000; // Fallback jika kosong
+                t2 = parseNum(rows[4][7]) || 950000000;
+                t3 = parseNum(rows[4][8]) || 1050000000;
+                t4 = parseNum(rows[4][9]) || 1125000000;
+              }
+
               let totalSales = 0;
               let totalTrx = 0;
               let totalQty = 0;
 
-              // 1. CARI TOTAL SALES DARI BARIS TOTAL SALES (SEPERTI BARIS 49 / E49 DI GS)
+              // 2. MENCARI BARIS "TOTAL SALES" SECARA OTOMATIS
               for (let i = 0; i < rows.length; i++) {
-                let firstCol = (rows[i][0] || '').toString().toUpperCase();
-                // Jika ketemu label TOTAL SALES (Baris 49)
-                if (firstCol.includes('TOTAL SALES')) {
+                let rowStr = rows[i].join(' ').toUpperCase();
+                
+                // Jika ketemu baris yang ada tulisan "TOTAL SALES"
+                if (rowStr.includes('TOTAL SALES')) {
                   totalSales = parseNum(rows[i][4]); // Kolom E (Index 4)
-                  break;
+                  break; // Stop pencarian setelah ketemu
                 }
               }
 
-              // Jika sel summary tidak ketemu, akumulasi manual baris harian (Row 17 s/d Row 17 + currentDay)
-              if (totalSales === 0) {
-                for (let r = 16; r < 16 + currentDay; r++) {
-                  if (rows[r]) {
-                    totalSales += parseNum(rows[r][4]); // Kolom E
-                  }
-                }
+              // 3. MENGHITUNG TRANSAKSI (Kolom H / Index 7)
+              // Karena datanya akumulasi, kita loop baris-baris sebelumnya
+              for (let i = 16; i < rows.length; i++) {
+                let rowStr = rows[i].join(' ').toUpperCase();
+                if (rowStr.includes('TOTAL SALES')) break; // Stop kalau udah mentok bawah
+                
+                let trxVal = parseNum(rows[i][7]);
+                if (trxVal > 0) totalTrx += trxVal;
               }
 
-              // 2. AMBIL TRX / QTY HARIAN (KOLOM H / INDEX 7) DARI TANGGAL 1 SD TANGGAL BERJALAN
-              for (let r = 16; r < 16 + currentDay; r++) {
-                if (rows[r] && rows[r][7]) {
-                  let dailyTrx = parseNum(rows[r][7]);
-                  totalTrx += dailyTrx;
-                }
-              }
-
-              // Asumsi UPT & Qty Estimasi (Jika Qty tidak terpisah dari TRX)
-              totalQty = Math.round(totalTrx * 3.2); // Asumsi UPT 3.2 jika Qty gabung dengan Trx
+              totalQty = Math.round(totalTrx * 3.2); 
 
               resolve({
                 ...store,
@@ -214,7 +210,8 @@
                 qty: totalQty,
                 trx: totalTrx,
                 upt: totalTrx > 0 ? (totalQty / totalTrx) : 0,
-                atv: totalTrx > 0 ? (totalSales / totalTrx) : 0
+                atv: totalTrx > 0 ? (totalSales / totalTrx) : 0,
+                targets: [t1, t2, t3, t4]
               });
             }
           });
@@ -234,32 +231,32 @@
         grandQty += store.qty;
         grandTrx += store.trx;
 
-        // HITUNG LEVEL PROGRES BERDASARKAN SALES RUPISAH
         let currentLevel = 0;
         let nextTarget = store.targets[0];
         let progressPct = 0;
         let sisaTarget = 0;
         let targetText = "";
 
-        if (store.sales >= store.targets[3]) { // Level 4
+        // Logika 4 Level
+        if (store.sales >= store.targets[3]) { 
           currentLevel = 4; progressPct = 100;
           targetText = `<span style="color:#10b981;">🏆 Level 4 Achieved!</span>`;
-        } else if (store.sales >= store.targets[2]) { // Level 3 -> 4
+        } else if (store.sales >= store.targets[2]) { 
           currentLevel = 3; nextTarget = store.targets[3];
           progressPct = 75 + (((store.sales - store.targets[2]) / (store.targets[3] - store.targets[2])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 4: <b>${formatRp(nextTarget)}</b>`;
-        } else if (store.sales >= store.targets[1]) { // Level 2 -> 3
+        } else if (store.sales >= store.targets[1]) { 
           currentLevel = 2; nextTarget = store.targets[2];
           progressPct = 50 + (((store.sales - store.targets[1]) / (store.targets[2] - store.targets[1])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 3: <b>${formatRp(nextTarget)}</b>`;
-        } else if (store.sales >= store.targets[0]) { // Level 1 -> 2
+        } else if (store.sales >= store.targets[0]) { 
           currentLevel = 1; nextTarget = store.targets[1];
           progressPct = 25 + (((store.sales - store.targets[0]) / (store.targets[1] - store.targets[0])) * 25);
           sisaTarget = nextTarget - store.sales;
           targetText = `Target Lvl 2: <b>${formatRp(nextTarget)}</b>`;
-        } else { // Below Level 1
+        } else { 
           nextTarget = store.targets[0];
           progressPct = (store.sales / store.targets[0]) * 25;
           sisaTarget = nextTarget - store.sales;
@@ -311,7 +308,6 @@
         container.innerHTML += cardHTML;
       });
 
-      // Update Angka Summary Atas
       document.getElementById('grand-sales').innerText = formatRp(grandSales);
       document.getElementById('grand-qty').innerText = grandQty.toLocaleString('id-ID');
       document.getElementById('grand-upt').innerText = grandTrx > 0 ? (grandQty / grandTrx).toFixed(2) : "0.00";
@@ -319,7 +315,7 @@
     }
 
     loadData();
-    setInterval(loadData, 15000); // Re-sync tiap 15 detik
+    setInterval(loadData, 15000);
   </script>
 </body>
 </html>
