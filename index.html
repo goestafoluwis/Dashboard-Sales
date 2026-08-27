@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Multitoko - Auto Update</title>
+
+  <!-- Library PapaParse -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- Styling CSS agar tampilan rapi -->
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .store-card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .store-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    .store-title {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #3498db;
+    }
+    .status {
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      background: #ecf0f1;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+    .table-responsive {
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 600px;
+    }
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 12px 15px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f6f7;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    tr:nth-child(even) {
+      background-color: #fafbfc;
+    }
+    tr:hover {
+      background-color: #f1f5f8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Dashboard Data Toko</h1>
+
+  <div class="container">
+    
+    <!-- Bagian Toko 1 -->
+    <div class="store-card">
+      <div class="store-header">
+        <h2 class="store-title">Toko 1</h2>
+        <div id="status-toko1" class="status">Memuat data...</div>
+      </div>
+      <div class="table-responsive">
+        <table id="table-toko1"></table>
+      </div>
+    </div>
+
+    <!-- Bagian Toko 2 -->
+    <div class="store-card">
+      <div class="store-header">
+        <h2 class="store-title">Toko 2</h2>
+        <div id="status-toko2" class="status">Memuat data...</div>
+      </div>
+      <div class="table-responsive">
+        <table id="table-toko2"></table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Link CSV dari Google Sheets yang Anda berikan
+    const urlToko1 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv";
+    const urlToko2 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv";
+
+    // Fungsi utama untuk mengambil data (bisa digunakan berulang kali untuk toko yang berbeda)
+    function fetchStoreData(csvUrl, tableId, statusId) {
+      Papa.parse(csvUrl, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          renderTable(results.data, tableId);
+          document.getElementById(statusId).innerText = "Update terakhir: " + new Date().toLocaleTimeString();
+        },
+        error: function(err) {
+          console.error("Gagal mengambil data dari", csvUrl, err);
+          document.getElementById(statusId).innerText = "Gagal memuat data. Periksa koneksi atau link CSV.";
+          document.getElementById(statusId).style.color = "red";
+        }
+      });
+    }
+
+    // Fungsi untuk membuat HTML Tabel berdasarkan data JSON dari PapaParse
+    function renderTable(data, tableId) {
+      const table = document.getElementById(tableId);
+      table.innerHTML = ''; // Kosongkan tabel sebelum diisi data baru
+
+      if (data.length === 0) {
+        table.innerHTML = "<tr><td>Data kosong atau belum tersedia.</td></tr>";
+        return;
+      }
+
+      // 1. Generate Header Tabel (Tarik otomatis dari baris pertama Google Sheets)
+      const headers = Object.keys(data[0]);
+      let thead = '<thead><tr>';
+      headers.forEach(header => {
+        thead += `<th>${header}</th>`;
+      });
+      thead += '</tr></thead>';
+
+      // 2. Generate Baris Data
+      let tbody = '<tbody>';
+      data.forEach(row => {
+        tbody += '<tr>';
+        headers.forEach(header => {
+          tbody += `<td>${row[header] || '-'}</td>`;
+        });
+        tbody += '</tr>';
+      });
+      tbody += '</tbody>';
+
+      // Masukkan ke dalam DOM
+      table.innerHTML = thead + tbody;
+    }
+
+    // Fungsi pembungkus untuk memuat semua toko sekaligus
+    function loadAllStores() {
+      fetchStoreData(urlToko1, 'table-toko1', 'status-toko1');
+      fetchStoreData(urlToko2, 'table-toko2', 'status-toko2');
+    }
+
+    // --- EKSEKUSI SCRIPT ---
+    
+    // 1. Jalankan pertama kali saat halaman dibuka
+    loadAllStores();
+
+    // 2. Set Auto-update otomatis (contoh: setiap 10.000 milidetik = 10 detik)
+    // Jika terlalu cepat, ubah angka 10000 menjadi 30000 (30 detik) atau 60000 (1 menit)
+    setInterval(loadAllStores, 10000);
+
+  </script>
+</body>
+</html>
