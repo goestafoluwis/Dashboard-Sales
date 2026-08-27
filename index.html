@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Executive Sales</title>
 
-  <!-- Google Fonts & PapaParse -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -122,9 +121,10 @@
   </div>
 
   <script>
+    // Ambil ID Spreadsheet dari link publik kamu
     const STORES_CONFIG = [
-      { name: "JW1003 ASMD", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo/pub?output=csv" },
-      { name: "JW4001 XMDG", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV/pub?output=csv" }
+      { name: "JW1003 ASMD", id: "2PACX-1vSh-l9QcJ-DnOQi2F7BAwZgxze1DU06fIg7AZSQea7Yd_mPyK3H25G4ZITeoaXSKDqeqlGFP_ky4AXo" },
+      { name: "JW4001 XMDG", id: "2PACX-1vS8hUPEdunze_A9dVRnCIdaC26cXnYYMs_qOTxXE2OKF2xP8YhzqsT-dJPsuVfJaoraJQVnaS58sNzV" }
     ];
 
     const formatRp = (num) => "Rp " + Math.round(num).toLocaleString('id-ID');
@@ -147,63 +147,64 @@
       return parseFloat(str) || 0;
     }
 
-    function loadData() {
+    async function loadData() {
       const [selYear, selMonth] = slicer.value.split('-');
       const monthName = new Date(selYear, selMonth - 1).toLocaleString('id-ID', { month: 'long' });
       let currentDay = (parseInt(selYear) === now.getFullYear() && parseInt(selMonth) === (now.getMonth() + 1)) ? now.getDate() : new Date(selYear, selMonth, 0).getDate();
       
       document.getElementById('period-info').innerText = `Menampilkan Data MTD: 1 - ${currentDay} ${monthName} ${selYear}`;
 
-      let fetchPromises = STORES_CONFIG.map(store => {
-        return new Promise((resolve) => {
-          // Bungkus URL dengan proxy publik untuk bypass blokiran CORS browser
-          const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(store.url);
+      let storePromises = STORES_CONFIG.map(async (store) => {
+        try {
+          // Gunakan endpoint Google Visualization untuk membaca sel absolut secara akurat
+          const url = `https://docs.google.com/spreadsheets/d/e/${store.id}/gviz/tq?tqx=out:json`;
+          const res = await fetch(url);
+          const text = await res.text();
+          
+          // Bersihkan format response Google gviz
+          const jsonString = text.substring(47, text.length - 2);
+          const json = JSON.parse(jsonString);
+          const rows = json.table.rows;
 
-          Papa.parse(proxyUrl, {
-            download: true,
-            header: false,
-            skipEmptyLines: false,
-            complete: function(results) {
-              const rows = results.data;
-              
-              // TARGET: Baris 5 (Index 4) -> G, H, I, J (Index 6, 7, 8, 9)
-              let t1 = rows[4] ? parseNum(rows[4][6]) : 0; // G5
-              let t2 = rows[4] ? parseNum(rows[4][7]) : 0; // H5
-              let t3 = rows[4] ? parseNum(rows[4][8]) : 0; // I5
-              let t4 = rows[4] ? parseNum(rows[4][9]) : 0; // J5
-
-              // DATA TOKO: Baris 13 (Index 12)
-              let sales = 0, qty = 0, trx = 0, traffic = 0, upt = 0, atv = 0;
-              
-              if (rows.length > 12 && rows[12]) {
-                sales   = parseNum(rows[12][3]); // D13 (Sales MTD)
-                trx     = parseNum(rows[12][5]); // F13 (Total Transaksi)
-                traffic = parseNum(rows[12][6]); // G13 (Traffic)
-                qty     = parseNum(rows[12][7]); // H13 (Qty Sold)
-                upt     = parseNum(rows[12][8]); // I13 (UPT)
-                atv     = parseNum(rows[12][9]); // J13 (ATV)
+          // Helper untuk ambil nilai cell berdasarkan indeks row & col (0-based)
+          // Baris 5 (Index 4), Baris 13 (Index 12)
+          // Kolom D=3, F=5, G=6, H=7, I=8, J=9
+          const getCellVal = (rIdx, cIdx) => {
+            try {
+              if (rows[rIdx] && rows[rIdx].c[cIdx]) {
+                return rows[rIdx].c[cIdx].v || 0;
               }
+            } catch (e) {}
+            return 0;
+          };
 
-              resolve({
-                ...store,
-                sales: sales,
-                qty: qty,
-                trx: trx,
-                traffic: traffic,
-                upt: upt,
-                atv: atv,
-                targets: [t1, t2, t3, t4]
-              });
-            },
-            error: function(err) {
-              console.error("Gagal parse CSV:", err);
-              resolve({ ...store, sales: 0, qty: 0, trx: 0, traffic: 0, upt: 0, atv: 0, targets: [0,0,0,0] });
-            }
-          });
-        });
+          // TARGET (Baris 5 -> Index 4)
+          let t1 = parseNum(getCellVal(4, 6)); // G5
+          let t2 = parseNum(getCellVal(4, 7)); // H5
+          let t3 = parseNum(getCellVal(4, 8)); // I5
+          let t4 = parseNum(getCellVal(4, 9)); // J5
+
+          // DATA TOKO (Baris 13 -> Index 12)
+          let sales   = parseNum(getCellVal(12, 3)); // D13 (Sales MTD)
+          let trx     = parseNum(getCellVal(12, 5)); // F13 (Total Transaksi)
+          let traffic = parseNum(getCellVal(12, 6)); // G13 (Traffic)
+          let qty     = parseNum(getCellVal(12, 7)); // H13 (Qty Sold)
+          let upt     = parseNum(getCellVal(12, 8)); // I13 (UPT)
+          let atv     = parseNum(getCellVal(12, 9)); // J13 (ATV)
+
+          return {
+            ...store,
+            sales, qty, trx, traffic, upt, atv,
+            targets: [t1, t2, t3, t4]
+          };
+        } catch (err) {
+          console.error("Error fetching store:", store.name, err);
+          return { ...store, sales: 0, qty: 0, trx: 0, traffic: 0, upt: 0, atv: 0, targets: [0,0,0,0] };
+        }
       });
 
-      Promise.all(fetchPromises).then(renderDashboardUI);
+      let storeData = await Promise.all(storePromises);
+      renderDashboardUI(storeData);
     }
 
     function renderDashboardUI(storeData) {
